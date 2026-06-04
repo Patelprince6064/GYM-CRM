@@ -1,5 +1,5 @@
 // PAGE 7 - MEMBER PORTAL (Premium Dark Fitness Theme)
-import { CheckCircle2, Calendar, Weight, Clock, Flame, Droplets, Moon, Star, Plus, CheckSquare2, User } from 'lucide-react'
+import { CheckCircle2, Calendar, Weight, Clock, Flame, Droplets, Moon, Star, Plus, CheckSquare2 } from 'lucide-react'
 import { clients, workoutSchedule, dailyUpdates, weightHistory } from '../data/mockData'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
