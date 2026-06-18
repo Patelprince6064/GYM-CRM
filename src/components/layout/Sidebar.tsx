@@ -30,8 +30,8 @@ export default function Sidebar() {
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center animate-pulse-glow"
           style={{
-            background: 'linear-gradient(135deg, #FF6B00, #FF8C42)',
-            boxShadow: '0 0 24px rgba(255,107,0,0.4)',
+            background: 'linear-gradient(135deg, #FACC15, #FDE047)',
+            boxShadow: '0 0 24px rgba(250, 204, 21,0.4)',
           }}
         >
           <Dumbbell size={20} color="white" />
@@ -108,7 +108,7 @@ export default function Sidebar() {
           <div
             className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white"
             style={{
-              background: 'linear-gradient(135deg, #FF6B00, #FF8C42)',
+              background: 'linear-gradient(135deg, #FACC15, #FDE047)',
               fontSize: '0.75rem',
             }}
           >

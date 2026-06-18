@@ -21,12 +21,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div style={{
-        background: '#1A1A1A', border: '1px solid rgba(255,107,0,0.2)',
+        background: '#1A1A1A', border: '1px solid rgba(250, 204, 21,0.2)',
         borderRadius: '10px', padding: '8px 12px', color: 'white',
         boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
       }}>
         <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>{label}</div>
-        <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#FF6B00' }}>{payload[0].value} kg</div>
+        <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#FACC15' }}>{payload[0].value} kg</div>
       </div>
     )
   }
@@ -55,7 +55,7 @@ export default function MemberPortal() {
             <span className="badge badge-active">{member.status}</span>
             <span style={{
               fontSize: '0.72rem', fontWeight: 700, color: 'var(--accent-primary)',
-              background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.25)',
+              background: 'rgba(250, 204, 21,0.1)', border: '1px solid rgba(250, 204, 21,0.25)',
               padding: '2px 10px', borderRadius: '12px', textTransform: 'uppercase', letterSpacing: '0.06em',
             }}>
               {member.plan} Member
@@ -110,7 +110,7 @@ export default function MemberPortal() {
               <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#4ade80' }}>{remainingPct}% remaining</span>
             </div>
             <div className="progress-bar" style={{ height: '8px' }}>
-              <div className="progress-fill" style={{ width: `${remainingPct}%`, background: 'linear-gradient(90deg, #FF6B00, #FF8C42)' }} />
+              <div className="progress-fill" style={{ width: `${remainingPct}%`, background: 'linear-gradient(90deg, #FACC15, #FDE047)' }} />
             </div>
           </div>
           <div className="flex flex-col gap-2">
@@ -130,32 +130,32 @@ export default function MemberPortal() {
         </div>
 
         {/* Today's Workout */}
-        <div className="glass p-6" style={{ border: '1px solid rgba(255,107,0,0.2)' }}>
+        <div className="glass p-6" style={{ border: '1px solid rgba(250, 204, 21,0.2)' }}>
           <div className="flex items-center justify-between mb-5">
             <div>
               <div className="section-label mb-1">Today's Training</div>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'white' }}>Today's Workout</h3>
             </div>
-            <span style={{ fontSize: '0.65rem', fontWeight: 700, background: 'rgba(255,107,0,0.1)', color: 'var(--accent-primary)', border: '1px solid rgba(255,107,0,0.2)', padding: '3px 10px', borderRadius: '12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <span style={{ fontSize: '0.65rem', fontWeight: 700, background: 'rgba(250, 204, 21,0.1)', color: 'var(--accent-primary)', border: '1px solid rgba(250, 204, 21,0.2)', padding: '3px 10px', borderRadius: '12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               TUESDAY
             </span>
           </div>
           <div className="flex items-center gap-3 mb-5">
-            <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem' }}>
+            <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(250, 204, 21,0.1)', border: '1px solid rgba(250, 204, 21,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem' }}>
               {todayWorkout.icon}
             </div>
             <div>
               <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white' }}>{todayWorkout.focus}</div>
               <div className="flex items-center gap-3 mt-1">
                 <div className="flex items-center gap-1"><Clock size={13} style={{ color: 'var(--text-muted)' }} /><span style={{ fontSize: '0.73rem', color: 'var(--text-muted)' }}>{todayWorkout.duration}</span></div>
-                <div className="flex items-center gap-1"><Flame size={13} color="#FF6B00" /><span style={{ fontSize: '0.73rem', color: 'var(--accent-primary)', fontWeight: 700 }}>{todayWorkout.intensity}</span></div>
+                <div className="flex items-center gap-1"><Flame size={13} color="#FACC15" /><span style={{ fontSize: '0.73rem', color: 'var(--accent-primary)', fontWeight: 700 }}>{todayWorkout.intensity}</span></div>
               </div>
             </div>
           </div>
           <div className="flex flex-col gap-2">
             {todayWorkout.exercises.map((ex, i) => (
               <div key={i} className="flex items-center gap-2.5 p-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
+                <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'rgba(250, 204, 21,0.1)', border: '1px solid rgba(250, 204, 21,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
                   {i + 1}
                 </div>
                 <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{ex}</span>
@@ -176,10 +176,10 @@ export default function MemberPortal() {
               const isToday = ws.day === 'Tuesday'
               return (
                 <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl" style={{
-                  background: isToday ? 'rgba(255,107,0,0.08)' : 'rgba(255,255,255,0.02)',
-                  border: isToday ? '1px solid rgba(255,107,0,0.2)' : '1px solid transparent',
+                  background: isToday ? 'rgba(250, 204, 21,0.08)' : 'rgba(255,255,255,0.02)',
+                  border: isToday ? '1px solid rgba(250, 204, 21,0.2)' : '1px solid transparent',
                 }}>
-                  <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: ws.isRest ? 'rgba(100,116,139,0.08)' : 'rgba(255,107,0,0.08)', border: ws.isRest ? '1px solid rgba(100,116,139,0.15)' : '1px solid rgba(255,107,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: ws.isRest ? 'rgba(100,116,139,0.08)' : 'rgba(250, 204, 21,0.08)', border: ws.isRest ? '1px solid rgba(100,116,139,0.15)' : '1px solid rgba(250, 204, 21,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' }}>
                     {ws.icon}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -187,7 +187,7 @@ export default function MemberPortal() {
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{ws.focus}</div>
                   </div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{ws.duration}</div>
-                  {isToday && <span style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--accent-primary)', background: 'rgba(255,107,0,0.1)', padding: '2px 8px', borderRadius: '8px', textTransform: 'uppercase' }}>Today</span>}
+                  {isToday && <span style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--accent-primary)', background: 'rgba(250, 204, 21,0.1)', padding: '2px 8px', borderRadius: '8px', textTransform: 'uppercase' }}>Today</span>}
                 </div>
               )
             })}
@@ -272,7 +272,7 @@ export default function MemberPortal() {
             <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis domain={[79, 83]} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip />} />
-            <Line type="monotone" dataKey="weight" stroke="#FF6B00" strokeWidth={2.5} dot={{ fill: '#FF6B00', r: 3, strokeWidth: 1.5, stroke: '#0A0A0A' }} activeDot={{ r: 5 }} />
+            <Line type="monotone" dataKey="weight" stroke="#FACC15" strokeWidth={2.5} dot={{ fill: '#FACC15', r: 3, strokeWidth: 1.5, stroke: '#0A0A0A' }} activeDot={{ r: 5 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

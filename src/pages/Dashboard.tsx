@@ -10,15 +10,15 @@ import {
 } from '../data/mockData'
 
 const weekSchedule = [
-  { day: 'Mon', focus: 'Chest + Triceps', color: '#FF6B00' },
-  { day: 'Tue', focus: 'Back + Biceps', color: '#FF8C42' },
+  { day: 'Mon', focus: 'Chest + Triceps', color: '#FACC15' },
+  { day: 'Tue', focus: 'Back + Biceps', color: '#FDE047' },
   { day: 'Wed', focus: 'Legs', color: '#22c55e' },
   { day: 'Thu', focus: 'Shoulders', color: '#f59e0b' },
   { day: 'Fri', focus: 'Cardio', color: '#f43f5e' },
 ]
 
 const statCards = [
-  { label: 'Total Clients', value: '112', change: '+8 this month', icon: Users, color: '#FF6B00', glow: 'rgba(255,107,0,0.25)' },
+  { label: 'Total Clients', value: '112', change: '+8 this month', icon: Users, color: '#FACC15', glow: 'rgba(250, 204, 21,0.25)' },
   { label: 'Active Memberships', value: '89', change: '+5 this week', icon: CreditCard, color: '#22c55e', glow: 'rgba(34,197,94,0.2)' },
   { label: 'Expiring Soon', value: '14', change: 'Within 30 days', icon: AlertTriangle, color: '#f59e0b', glow: 'rgba(245,158,11,0.2)' },
   { label: "Today's Attendance", value: '47', change: '83% attendance rate', icon: CheckSquare, color: '#a78bfa', glow: 'rgba(167,139,250,0.2)' },
@@ -34,7 +34,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div style={{
-        background: '#1A1A1A', border: '1px solid rgba(255,107,0,0.2)',
+        background: '#1A1A1A', border: '1px solid rgba(250, 204, 21,0.2)',
         borderRadius: '10px', padding: '10px 14px', color: 'white',
         boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
       }}>
@@ -57,8 +57,8 @@ function getStatusClass(status: string) {
 }
 
 function getPlanColor(plan: string) {
-  if (plan === 'Elite') return '#FF6B00'
-  if (plan === 'Premium') return '#FF8C42'
+  if (plan === 'Elite') return '#FACC15'
+  if (plan === 'Premium') return '#FDE047'
   return 'var(--text-secondary)'
 }
 
@@ -79,11 +79,11 @@ export default function Dashboard() {
       >
         <img src="/gym-hero.png" alt="Gym" className="hero-banner-img" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
         <div className="hero-overlay" />
-        {/* Orange top line */}
+        {/* Yellow top line */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0,
           height: '3px',
-          background: 'linear-gradient(90deg, #FF6B00, #FF8C42, transparent)',
+          background: 'linear-gradient(90deg, #FACC15, #FDE047, transparent)',
         }} />
 
         {/* Hero Content */}
@@ -198,15 +198,15 @@ export default function Dashboard() {
             <AreaChart data={membershipGrowthData}>
               <defs>
                 <linearGradient id="membersGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#FF6B00" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#FF6B00" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#FACC15" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#FACC15" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
               <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="members" name="Members" stroke="#FF6B00" strokeWidth={2.5} fill="url(#membersGrad)" dot={{ fill: '#FF6B00', r: 4, strokeWidth: 0 }} />
+              <Area type="monotone" dataKey="members" name="Members" stroke="#FACC15" strokeWidth={2.5} fill="url(#membersGrad)" dot={{ fill: '#FACC15', r: 4, strokeWidth: 0 }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -227,7 +227,7 @@ export default function Dashboard() {
               <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="present" name="Present" fill="#FF6B00" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="present" name="Present" fill="#FACC15" radius={[4, 4, 0, 0]} />
               <Bar dataKey="absent" name="Absent" fill="rgba(244,63,94,0.25)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

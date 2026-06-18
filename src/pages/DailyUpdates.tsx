@@ -4,7 +4,7 @@ import { dailyUpdates } from '../data/mockData'
 
 const moodColor: Record<string, string> = {
   'Excellent': '#4ade80',
-  'Good': '#FF8C42',
+  'Good': '#FDE047',
   'Tired': '#f59e0b',
   'Poor': '#f43f5e',
 }
@@ -50,7 +50,7 @@ export default function DailyUpdates() {
       {/* Progress Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Workouts Completed', value: `${completedCount}/${dailyUpdates.length}`, icon: Zap, color: '#FF6B00', sub: `${Math.round(completedCount/dailyUpdates.length*100)}% completion` },
+          { label: 'Workouts Completed', value: `${completedCount}/${dailyUpdates.length}`, icon: Zap, color: '#FACC15', sub: `${Math.round(completedCount/dailyUpdates.length*100)}% completion` },
           { label: 'Avg Water Intake', value: `${avgWater}L`, icon: Droplets, color: '#06b6d4', sub: 'Recommended: 3L' },
           { label: 'Avg Sleep Hours', value: `${avgSleep}h`, icon: Moon, color: '#a78bfa', sub: 'Recommended: 7-9h' },
           { label: 'Avg Calories', value: avgCalories.toLocaleString(), icon: Flame, color: '#f59e0b', sub: 'kcal consumed' },
@@ -99,7 +99,7 @@ export default function DailyUpdates() {
               </div>
               <div style={{
                 fontSize: '1.2rem', width: '34px', height: '34px', borderRadius: '10px',
-                background: 'rgba(255,107,0,0.08)', border: '1px solid rgba(255,107,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(250, 204, 21,0.08)', border: '1px solid rgba(250, 204, 21,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {moodEmoji[update.mood] || '😊'}
               </div>
@@ -160,7 +160,7 @@ export default function DailyUpdates() {
             {/* Mood */}
             <div className="flex items-center justify-between mb-3">
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Mood</span>
-              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: moodColor[update.mood] || '#FF8C42' }}>
+              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: moodColor[update.mood] || '#FDE047' }}>
                 {update.mood}
               </span>
             </div>

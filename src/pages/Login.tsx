@@ -53,10 +53,10 @@ export default function Login() {
           position: 'absolute', inset: 0,
           background: 'linear-gradient(135deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.75) 60%, rgba(10,10,10,0.55) 100%)',
         }} />
-        {/* Orange top stripe */}
+        {/* Yellow top stripe */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
-          background: 'linear-gradient(90deg, #FF6B00, #FF8C42, #FFB347)',
+          background: 'linear-gradient(90deg, #FACC15, #FDE047, #FEF08A)',
         }} />
 
         {/* Logo */}
@@ -64,15 +64,15 @@ export default function Login() {
           <div
             className="w-12 h-12 rounded-2xl flex items-center justify-center"
             style={{
-              background: 'linear-gradient(135deg, #FF6B00, #FF8C42)',
-              boxShadow: '0 0 30px rgba(255,107,0,0.5)',
+              background: 'linear-gradient(135deg, #FACC15, #FDE047)',
+              boxShadow: '0 0 30px rgba(250, 204, 21,0.5)',
             }}
           >
             <Dumbbell size={24} color="white" />
           </div>
           <div>
             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
-              Gym<span style={{ color: '#FF6B00' }}>CRM</span>
+              Gym<span style={{ color: '#FACC15' }}>CRM</span>
             </div>
             <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', fontWeight: 700 }}>FITNESS MANAGEMENT PLATFORM</div>
           </div>
@@ -80,8 +80,8 @@ export default function Login() {
 
         {/* Hero Text */}
         <div className="relative z-10 animate-fadeInUp" style={{ animationDelay: '0.1s', opacity: 0, animationFillMode: 'forwards' }}>
-          {/* Orange tag */}
-          <div className="orange-tag mb-6" style={{ display: 'inline-flex' }}>
+          {/* Yellow tag */}
+          <div className="yellow-tag mb-6" style={{ display: 'inline-flex' }}>
             <Flame size={12} />
             Premium CRM for Fitness Professionals
           </div>
@@ -96,7 +96,7 @@ export default function Login() {
 
           {/* Motivational Quote */}
           <div style={{
-            borderLeft: '3px solid #FF6B00', paddingLeft: '16px',
+            borderLeft: '3px solid #FACC15', paddingLeft: '16px',
             marginBottom: '36px',
           }}>
             <p style={{
@@ -121,9 +121,9 @@ export default function Login() {
                 >
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.2)' }}
+                    style={{ background: 'rgba(250, 204, 21,0.1)', border: '1px solid rgba(250, 204, 21,0.2)' }}
                   >
-                    <Icon size={16} color="#FF6B00" />
+                    <Icon size={16} color="#FACC15" />
                   </div>
                   <div>
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'white' }}>{f.text}</div>
@@ -168,12 +168,12 @@ export default function Login() {
           <div className="flex lg:hidden items-center gap-3 mb-10 justify-center">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #FF6B00, #FF8C42)' }}
+              style={{ background: 'linear-gradient(135deg, #FACC15, #FDE047)' }}
             >
               <Dumbbell size={20} color="white" />
             </div>
             <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white' }}>
-              Gym<span style={{ color: '#FF6B00' }}>CRM</span>
+              Gym<span style={{ color: '#FACC15' }}>CRM</span>
             </div>
           </div>
 
@@ -184,13 +184,13 @@ export default function Login() {
               border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: '24px',
               padding: '40px',
-              boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 1px rgba(255,107,0,0.1)',
+              boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 1px rgba(250, 204, 21,0.1)',
             }}
           >
             {/* Top accent */}
             <div style={{
               height: '3px',
-              background: 'linear-gradient(90deg, #FF6B00, #FF8C42)',
+              background: 'linear-gradient(90deg, #FACC15, #FDE047)',
               borderRadius: '2px',
               marginBottom: '32px',
             }} />

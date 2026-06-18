@@ -12,12 +12,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div style={{
-        background: '#1A1A1A', border: '1px solid rgba(255,107,0,0.2)',
+        background: '#1A1A1A', border: '1px solid rgba(250, 204, 21,0.2)',
         borderRadius: '10px', padding: '10px 14px', color: 'white',
         boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
       }}>
         <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>{label}</div>
-        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#FF6B00' }}>
+        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#FACC15' }}>
           {payload[0].value} kg
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function WeightManagement() {
         {/* Current Weight */}
         <div className="stat-card animate-fadeInUp" style={{ animationFillMode: 'forwards', opacity: 0 }}>
           <div className="flex items-center gap-2 mb-4">
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,107,0,0.08)', border: '1px solid rgba(255,107,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(250, 204, 21,0.08)', border: '1px solid rgba(250, 204, 21,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Scale size={18} color="var(--accent-primary)" />
             </div>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Current Weight</span>
@@ -142,8 +142,8 @@ export default function WeightManagement() {
             <LineChart data={weightHistory}>
               <defs>
                 <linearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#FF6B00" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#FF6B00" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#FACC15" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#FACC15" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -151,7 +151,7 @@ export default function WeightManagement() {
               <YAxis domain={[79, 83]} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
               <ReferenceLine y={goalWeight} stroke="#4ade80" strokeDasharray="5 5" strokeWidth={1.5} label={{ value: 'Goal', fill: '#4ade80', fontSize: 11 }} />
-              <Line type="monotone" dataKey="weight" stroke="#FF6B00" strokeWidth={2.5} dot={{ fill: '#FF6B00', r: 4, strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="weight" stroke="#FACC15" strokeWidth={2.5} dot={{ fill: '#FACC15', r: 4, strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -169,7 +169,7 @@ export default function WeightManagement() {
               <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#4ade80' }}>{progress}%</span>
             </div>
             <div className="progress-bar" style={{ height: '8px' }}>
-              <div className="progress-fill" style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #FF6B00, #FF8C42)' }} />
+              <div className="progress-fill" style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #FACC15, #FDE047)' }} />
             </div>
             <div className="flex justify-between mt-1.5">
               <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{startWeight} kg start</span>

@@ -10,8 +10,8 @@ function getStatusClass(status: string) {
 }
 
 function getPlanColor(plan: string) {
-  if (plan === 'Elite') return '#FF6B00'
-  if (plan === 'Premium') return '#FF8C42'
+  if (plan === 'Elite') return '#FACC15'
+  if (plan === 'Premium') return '#FDE047'
   return 'var(--text-secondary)'
 }
 
@@ -93,8 +93,8 @@ export default function Clients() {
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    border: filter === f ? '1px solid rgba(255,107,0,0.4)' : '1px solid rgba(255,255,255,0.06)',
-                    background: filter === f ? 'rgba(255,107,0,0.12)' : '#1A1A1A',
+                    border: filter === f ? '1px solid rgba(250, 204, 21,0.4)' : '1px solid rgba(255,255,255,0.06)',
+                    background: filter === f ? 'rgba(250, 204, 21,0.12)' : '#1A1A1A',
                     color: filter === f ? 'var(--accent-primary)' : 'var(--text-secondary)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
@@ -130,7 +130,7 @@ export default function Clients() {
                     style={{
                       borderBottom: '1px solid rgba(255,255,255,0.04)',
                       cursor: 'pointer',
-                      background: selected?.id === client.id ? 'rgba(255,107,0,0.06)' : undefined,
+                      background: selected?.id === client.id ? 'rgba(250, 204, 21,0.06)' : undefined,
                     }}
                     onClick={() => setSelected(selected?.id === client.id ? null : client)}
                   >
@@ -194,8 +194,8 @@ export default function Clients() {
               position: 'sticky', top: '32px', animationFillMode: 'forwards',
             }}
           >
-            {/* Top Orange Bar */}
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FF6B00, #FF8C42)', borderRadius: '2px', marginBottom: '20px' }} />
+            {/* Top Yellow Bar */}
+            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
 
             <div className="flex items-center justify-between mb-5">
               <span style={{
@@ -282,7 +282,7 @@ export default function Clients() {
                 <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#4ade80' }}>{selected.attendance}%</span>
               </div>
               <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${selected.attendance}%`, background: 'linear-gradient(90deg, #FF6B00, #FF8C42)' }} />
+                <div className="progress-fill" style={{ width: `${selected.attendance}%`, background: 'linear-gradient(90deg, #FACC15, #FDE047)' }} />
               </div>
             </div>
 

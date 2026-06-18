@@ -64,7 +64,7 @@ export const clients = [
     phone: "+91 65432 10987",
     email: "sunita.rao@email.com",
     avatar: "SR",
-    avatarColor: "from-amber-500 to-orange-600",
+    avatarColor: "from-amber-500 to-yellow-600",
     plan: "Premium",
     startDate: "2025-12-10",
     endDate: "2026-06-10",
@@ -196,7 +196,7 @@ export const workoutSchedule = [
     exercises: ["OHP 4×10", "Arnold Press 3×12", "Lateral Raises 4×15", "Front Raises 3×15", "Face Pulls 3×15"],
     duration: "55 min",
     intensity: "Medium",
-    color: "from-amber-600 to-orange-700",
+    color: "from-amber-600 to-yellow-700",
     icon: "🏆",
     isRest: false,
   },
@@ -384,14 +384,14 @@ export const recentActivity = [
   { id: 2, name: "Priya Patel", action: "Updated weight: 58.2 kg → 57.9 kg", time: "3 hours ago", avatar: "PP", color: "from-pink-500 to-rose-600" },
   { id: 3, name: "Vikram Singh", action: "New PR on Overhead Press: 90kg", time: "4 hours ago", avatar: "VS", color: "from-blue-500 to-cyan-600" },
   { id: 4, name: "Arjun Mehta", action: "Renewed Elite membership", time: "5 hours ago", avatar: "AM", color: "from-indigo-500 to-blue-600" },
-  { id: 5, name: "Sunita Rao", action: "Membership expiring in 7 days", time: "6 hours ago", avatar: "SR", color: "from-amber-500 to-orange-600" },
+  { id: 5, name: "Sunita Rao", action: "Membership expiring in 7 days", time: "6 hours ago", avatar: "SR", color: "from-amber-500 to-yellow-600" },
 ];
 
 export const membershipTable = [
   { name: "Rahul Sharma", plan: "Premium", start: "15 Jan 2026", end: "15 Jul 2026", remaining: 42, status: "Active", avatar: "RS", color: "from-violet-500 to-purple-600" },
   { name: "Priya Patel", plan: "Elite", start: "01 Feb 2026", end: "01 Aug 2026", remaining: 59, status: "Active", avatar: "PP", color: "from-pink-500 to-rose-600" },
   { name: "Amit Verma", plan: "Basic", start: "20 May 2026", end: "20 Jun 2026", remaining: 17, status: "Expiring", avatar: "AV", color: "from-emerald-500 to-teal-600" },
-  { name: "Sunita Rao", plan: "Premium", start: "10 Dec 2025", end: "10 Jun 2026", remaining: 7, status: "Expiring", avatar: "SR", color: "from-amber-500 to-orange-600" },
+  { name: "Sunita Rao", plan: "Premium", start: "10 Dec 2025", end: "10 Jun 2026", remaining: 7, status: "Expiring", avatar: "SR", color: "from-amber-500 to-yellow-600" },
   { name: "Vikram Singh", plan: "Elite", start: "01 Mar 2026", end: "01 Sep 2026", remaining: 90, status: "Active", avatar: "VS", color: "from-blue-500 to-cyan-600" },
   { name: "Kavya Nair", plan: "Basic", start: "01 Nov 2025", end: "01 May 2026", remaining: 0, status: "Expired", avatar: "KN", color: "from-fuchsia-500 to-pink-600" },
 ];

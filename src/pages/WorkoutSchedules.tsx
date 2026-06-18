@@ -5,7 +5,7 @@ import { workoutSchedule } from '../data/mockData'
 
 const intensityColor: Record<string, string> = {
   'Very High': '#f43f5e',
-  'High': '#FF6B00',
+  'High': '#FACC15',
   'Medium': '#f59e0b',
   'Low': '#4ade80',
 }
@@ -56,8 +56,8 @@ export default function WorkoutSchedules() {
                 style={{
                   overflow: 'hidden',
                   transition: 'all 0.3s ease',
-                  border: isToday ? '1px solid rgba(255,107,0,0.3)' : '1px solid rgba(255,255,255,0.06)',
-                  boxShadow: isToday ? '0 0 30px rgba(255,107,0,0.1)' : undefined,
+                  border: isToday ? '1px solid rgba(250, 204, 21,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                  boxShadow: isToday ? '0 0 30px rgba(250, 204, 21,0.1)' : undefined,
                 }}
               >
                 {/* Card Top Gradient Bar */}
@@ -71,7 +71,7 @@ export default function WorkoutSchedules() {
                     <div className="flex items-center gap-3">
                       <div
                         className="flex items-center justify-center text-2xl"
-                        style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255,107,0,0.08)', border: '1px solid rgba(255,107,0,0.15)' }}
+                        style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(250, 204, 21,0.08)', border: '1px solid rgba(250, 204, 21,0.15)' }}
                       >
                         {item.icon}
                       </div>
@@ -83,8 +83,8 @@ export default function WorkoutSchedules() {
                     {isToday && (
                       <span style={{
                         fontSize: '0.68rem', fontWeight: 700,
-                        background: 'rgba(255,107,0,0.12)', color: 'var(--accent-primary)',
-                        border: '1px solid rgba(255,107,0,0.25)',
+                        background: 'rgba(250, 204, 21,0.12)', color: 'var(--accent-primary)',
+                        border: '1px solid rgba(250, 204, 21,0.25)',
                         padding: '3px 10px', borderRadius: '12px',
                         textTransform: 'uppercase', letterSpacing: '0.06em',
                       }}>TODAY</span>
@@ -159,7 +159,7 @@ export default function WorkoutSchedules() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Active Training Days', value: '6', color: '#FF6B00' },
+            { label: 'Active Training Days', value: '6', color: '#FACC15' },
             { label: 'Total Weekly Duration', value: '355 min', color: '#4ade80' },
             { label: 'Avg Session Length', value: '59 min', color: '#f59e0b' },
             { label: 'Rest Days', value: '1', color: 'var(--text-muted)' },
