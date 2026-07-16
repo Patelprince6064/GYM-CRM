@@ -436,16 +436,21 @@ body {
   letter-spacing: 0.02em;
 }
 
-/* ---- Stat Card ---- */
 .stat-card {
   background: var(--bg-card);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 16px;
-  padding: 24px;
+  padding: 16px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .stat-card {
+    padding: 24px;
+  }
 }
 
 .stat-card::before {

@@ -181,7 +181,7 @@ export default function MemberPortal() {
       )}
       {/* Member Header */}
       <div
-        className="glass-strong p-6 mb-8 flex flex-wrap items-center gap-5 animate-fadeInUp"
+        className="glass-strong p-5 sm:p-6 mb-6 sm:mb-8 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 animate-fadeInUp text-center sm:text-left"
         style={{ animationFillMode: 'forwards', opacity: 0, borderTop: '3px solid var(--accent-primary)' }}
       >
         <input 
@@ -206,8 +206,8 @@ export default function MemberPortal() {
             <Camera size={20} color="white" />
           </div>
         </div>
-        <div style={{ flex: 1, minWidth: '180px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="flex-1 w-full flex flex-col items-center sm:items-start">
+          <div className="flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
             <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>{member.name}</h1>
             <span className="badge badge-active">{member.status}</span>
             <span style={{
@@ -218,20 +218,20 @@ export default function MemberPortal() {
               {member.plan} Member
             </span>
           </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem', marginTop: '5px' }}>
-            Goal: {member.goal} · Age {member.age} · {member.height} cm · {member.phone}
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.83rem', marginTop: '6px' }}>
+            Goal: {member.goal} <span className="hidden sm:inline">·</span><span className="sm:hidden"><br/></span> Age {member.age} · {member.height} cm · {member.phone}
           </p>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <button className="btn-secondary" style={{ padding: '8px 12px', fontSize: '0.8rem' }} onClick={() => setShowMessageModal(true)}>
+        <div className="flex gap-2 flex-wrap justify-center sm:justify-start w-full sm:w-auto mt-2 sm:mt-0">
+          <button className="btn-secondary flex-1 sm:flex-none justify-center" style={{ padding: '8px 12px', fontSize: '0.8rem' }} onClick={() => setShowMessageModal(true)}>
             <MessageSquare size={14} /> Message
           </button>
           {!isAdmin && (
             <>
-              <button className="btn-primary" style={{ padding: '8px 12px', fontSize: '0.8rem' }} onClick={handleOpenWeightModal}>
+              <button className="btn-primary flex-1 sm:flex-none justify-center" style={{ padding: '8px 12px', fontSize: '0.8rem' }} onClick={handleOpenWeightModal}>
                 <Plus size={14} /> Weight
               </button>
-              <button className="btn-green" onClick={handleMarkAttendance} style={{ opacity: attendanceMarked ? 0.7 : 1, padding: '8px 12px', fontSize: '0.8rem' }}>
+              <button className="btn-green flex-1 sm:flex-none justify-center" onClick={handleMarkAttendance} style={{ opacity: attendanceMarked ? 0.7 : 1, padding: '8px 12px', fontSize: '0.8rem' }}>
                 <CheckSquare2 size={14} /> {attendanceMarked ? 'Done ✓' : 'Attend'}
               </button>
             </>
@@ -240,7 +240,7 @@ export default function MemberPortal() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         {[
           { label: 'Days Remaining', value: `${member.remainingDays}`, unit: 'days', color: 'var(--accent-primary)', icon: Calendar },
           { label: 'Current Weight', value: `${member.currentWeight}`, unit: 'kg', color: '#4ade80', icon: Weight },
@@ -263,7 +263,7 @@ export default function MemberPortal() {
       </div>
 
       {/* Middle Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Membership Info */}
         <div className="glass p-6">
           <div className="section-label mb-1">Subscription</div>
@@ -330,7 +330,7 @@ export default function MemberPortal() {
       </div>
 
       {/* Weekly Schedule + Attendance */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Weekly Schedule */}
         <div className="glass p-6">
           <div className="section-label mb-1">Weekly Plan</div>
@@ -372,7 +372,7 @@ export default function MemberPortal() {
           <div className="glass p-5">
             <div className="section-label mb-1">Attendance</div>
             <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'white', marginBottom: '14px' }}>This Week's Attendance</h3>
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2 justify-between">
               {attendanceDays.map((d, i) => (
                 <div key={i} className="flex flex-col items-center gap-1.5" style={{ flex: 1 }}>
                   <div style={{
@@ -396,7 +396,7 @@ export default function MemberPortal() {
           <div className="glass p-5" style={{ flex: 1 }}>
             <div className="section-label mb-1">Daily Log</div>
             <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'white', marginBottom: '14px' }}>Today's Summary</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {[
                 { icon: Droplets, label: 'Water', value: `${todayUpdate.water}L`, color: '#06b6d4' },
                 { icon: Flame, label: 'Calories', value: `${todayUpdate.calories}`, color: '#f59e0b' },
