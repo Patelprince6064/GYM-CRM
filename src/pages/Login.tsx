@@ -1,6 +1,8 @@
 // PAGE 1 - LOGIN (Premium Dark Fitness Theme)
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { useData } from '../context/DataContext'
 import { Dumbbell, Eye, EyeOff, Zap, Shield, TrendingUp, Users, Flame, ArrowRight } from 'lucide-react'
 
 const features = [
@@ -17,28 +19,99 @@ const motivationalQuotes = [
 ]
 
 export default function Login() {
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
+  const [loginRole, setLoginRole] = useState<'admin' | 'user'>('admin')
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState('admin@gymcrm.com')
-  const [password, setPassword] = useState('••••••••')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const navigate = useNavigate()
+  const { login, signup, resetPassword } = useAuth()
+  const { clients } = useData()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    navigate('/dashboard')
+    setError('')
+    setSuccess('')
+
+    if (!email.trim()) { setError('Please enter your email'); return }
+    if (!password.trim()) { setError('Please enter your password'); return }
+    if (loginRole === 'admin') {
+      const ok = login(email.trim(), password.trim())
+      if (ok) {
+        navigate('/dashboard')
+      } else {
+        setError('Invalid admin credentials')
+      }
+      return
+    }
+
+    // User Login Flow
+    const ok = login(email.trim(), password.trim())
+    if (ok) {
+      navigate('/member')
+      return
+    }
+
+    // If login failed, check if it's a first-time login for an admin-created client
+    const users = JSON.parse(localStorage.getItem('gym_crm_users') || '[]')
+    const userExistsInAuth = users.find((u: any) => u.email === email.trim())
+
+    if (userExistsInAuth) {
+      setError('Invalid email or password')
+      return
+    }
+
+    // Check if admin added them to Clients DB
+    const clientRecord = clients.find(c => c.email.toLowerCase() === email.trim().toLowerCase())
+    if (clientRecord) {
+      // First time login! Set their password and sign them up
+      const registered = signup(clientRecord.name, email.trim(), password.trim())
+      if (registered) {
+        navigate('/member')
+      } else {
+        setError('Failed to set password. Please try again.')
+      }
+    } else {
+      setError('Access Denied. Your email must be registered by an Admin first.')
+    }
+  }
+
+  const handleForgotPassword = (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setSuccess('')
+    if (!email || !password) {
+      setError('Please enter your email and a new password.')
+      return
+    }
+    const resetSuccess = resetPassword(email, password)
+    if (resetSuccess) {
+      setSuccess('Password reset successfully! You can now log in.')
+      setIsForgotPassword(false)
+      setPassword('')
+    } else {
+      setError('No account found with that email.')
+    }
+  }
+
+  const handleRoleChange = (role: 'admin' | 'user') => {
+    setLoginRole(role)
+    setError('')
+    setEmail('')
+    setPassword('')
   }
 
   const quote = motivationalQuotes[0]
 
   return (
     <div
-      className="min-h-screen flex"
+      className="login-container"
       style={{ background: '#0A0A0A', fontFamily: 'Inter, sans-serif' }}
     >
       {/* Left Panel – Gym Image + Branding */}
-      <div
-        className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative overflow-hidden"
-        style={{ minHeight: '100vh' }}
-      >
+      <div className="login-left-panel">
         {/* Background Image */}
         <img
           src="/gym-login.png"
@@ -155,17 +228,11 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Panel – Login Form */}
-      <div
-        className="flex-1 flex items-center justify-center p-8 relative"
-        style={{
-          background: 'linear-gradient(135deg, #0A0A0A 0%, #0F0F0F 100%)',
-          borderLeft: '1px solid rgba(255,255,255,0.04)',
-        }}
-      >
-        <div className="w-full max-w-md animate-fadeInUp" style={{ animationFillMode: 'forwards' }}>
+      {/* Right Panel – Login/Signup Form */}
+      <div className="login-right-panel">
+        <div className="w-full login-form-wrapper animate-fadeInUp" style={{ animationFillMode: 'forwards' }}>
           {/* Mobile Logo */}
-          <div className="flex lg:hidden items-center gap-3 mb-10 justify-center">
+          <div className="login-mobile-logo">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ background: 'linear-gradient(135deg, #FACC15, #FDE047)' }}
@@ -186,6 +253,7 @@ export default function Login() {
               padding: '40px',
               boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 1px rgba(250, 204, 21,0.1)',
             }}
+            className="login-card"
           >
             {/* Top accent */}
             <div style={{
@@ -196,19 +264,74 @@ export default function Login() {
             }} />
 
             <div style={{ marginBottom: '28px' }}>
+              <div className="flex gap-2 p-1 mb-6 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('admin')}
+                  style={{
+                    flex: 1, padding: '8px', fontSize: '0.8rem', fontWeight: 700, borderRadius: '8px', transition: 'all 0.3s',
+                    background: loginRole === 'admin' ? 'var(--accent-primary)' : 'transparent',
+                    color: loginRole === 'admin' ? 'black' : 'var(--text-muted)'
+                  }}
+                >
+                  Admin Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('user')}
+                  style={{
+                    flex: 1, padding: '8px', fontSize: '0.8rem', fontWeight: 700, borderRadius: '8px', transition: 'all 0.3s',
+                    background: loginRole === 'user' ? 'var(--accent-primary)' : 'transparent',
+                    color: loginRole === 'user' ? 'black' : 'var(--text-muted)'
+                  }}
+                >
+                  User Login
+                </button>
+              </div>
+
               <h2 style={{
                 fontSize: '1.8rem', fontWeight: 900,
                 color: 'white', marginBottom: '8px',
                 letterSpacing: '-0.02em',
               }}>
-                Welcome Back 💪
+                {isForgotPassword ? 'Reset Password 🔐' : 'Welcome Back 💪'}
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                Sign in to your GymCRM admin panel
+                {isForgotPassword ? 'Enter your email and a new password' : `Sign in to your GymCRM ${loginRole} panel`}
               </p>
             </div>
 
-            <form onSubmit={handleLogin} className="flex flex-col gap-5">
+            {/* Error / Success */}
+            {error && (
+              <div style={{
+                background: 'rgba(244,63,94,0.1)',
+                border: '1px solid rgba(244,63,94,0.3)',
+                borderRadius: '10px',
+                padding: '10px 14px',
+                marginBottom: '16px',
+                fontSize: '0.82rem',
+                color: '#fb7185',
+                fontWeight: 600,
+              }}>
+                {error}
+              </div>
+            )}
+            {success && (
+              <div style={{
+                background: 'rgba(34,197,94,0.1)',
+                border: '1px solid rgba(34,197,94,0.3)',
+                borderRadius: '10px',
+                padding: '10px 14px',
+                marginBottom: '16px',
+                fontSize: '0.82rem',
+                color: '#4ade80',
+                fontWeight: 600,
+              }}>
+                {success}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div>
                 <label style={{
                   display: 'block', fontSize: '0.78rem', fontWeight: 700,
@@ -222,7 +345,8 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="admin@gymcrm.com"
+                  placeholder="@gmail.com"
+                  autoComplete="email"
                 />
               </div>
 
@@ -242,6 +366,7 @@ export default function Login() {
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     style={{ paddingRight: '44px' }}
+                    autoComplete="current-password"
                   />
                   <button
                     type="button"
@@ -255,21 +380,44 @@ export default function Login() {
                     {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>
                 </div>
-                <div style={{ textAlign: 'right', marginTop: '8px' }}>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--accent-primary)', cursor: 'pointer', fontWeight: 600 }}>
-                    Forgot password?
-                  </span>
-                </div>
+                {!isForgotPassword && (
+                  <div style={{ textAlign: 'right', marginTop: '8px' }}>
+                    <span onClick={() => setIsForgotPassword(true)} style={{ fontSize: '0.78rem', color: 'var(--accent-primary)', cursor: 'pointer', fontWeight: 600 }}>
+                      Forgot password?
+                    </span>
+                  </div>
+                )}
               </div>
 
               <button
                 type="submit"
+                onClick={isForgotPassword ? handleForgotPassword : undefined}
                 className="btn-primary w-full justify-center"
                 style={{ padding: '14px', fontSize: '0.95rem', marginTop: '4px', borderRadius: '12px', fontWeight: 800 }}
               >
-                Sign In to Dashboard <ArrowRight size={17} />
+                {isForgotPassword ? (
+                  <>Reset Password <ArrowRight size={17} /></>
+                ) : (
+                  <>Sign In to Dashboard <ArrowRight size={17} /></>
+                )}
               </button>
             </form>
+
+            {/* Toggle Forgot Password */}
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              {isForgotPassword && (
+                <button
+                  onClick={() => setIsForgotPassword(false)}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent-primary)',
+                  }}
+                >
+                  Back to Sign In
+                </button>
+              )}
+            </div>
+
 
           </div>
 

@@ -1,7 +1,9 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import { useData } from '../../context/DataContext'
 import {
   LayoutDashboard, Users, Calendar, Activity, Weight,
-  Dumbbell, LogOut, ChevronRight, User, Flame
+  Dumbbell, LogOut, ChevronRight, User, Flame, X
 } from 'lucide-react'
 
 const navItems = [
@@ -13,18 +15,48 @@ const navItems = [
   { label: 'Member Portal', icon: User, path: '/member' },
 ]
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { user, logout } = useAuth()
+  const { clients } = useData()
+
+  const activeCount = clients.filter(c => c.status === 'Active').length
+  const expiringCount = clients.filter(c => c.status === 'Expiring').length
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+    onClose()
+  }
+
+  const handleNavClick = () => {
+    onClose()
+  }
 
   return (
     <aside
-      className="fixed left-0 top-0 h-full w-64 flex flex-col z-50"
-      style={{
-        background: '#0D0D0D',
-        borderRight: '1px solid rgba(255,255,255,0.05)',
-      }}
+      className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}
     >
+      {/* Close button - mobile only */}
+      <button
+        className="sidebar-close-btn"
+        onClick={onClose}
+        style={{
+          position: 'absolute', top: '16px', right: '16px',
+          background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '8px', padding: '6px', color: 'var(--text-muted)',
+          cursor: 'pointer', zIndex: 10,
+        }}
+      >
+        <X size={18} />
+      </button>
+
       {/* Logo */}
       <div className="p-6 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div
@@ -69,7 +101,7 @@ export default function Sidebar() {
         }}>
           Main Menu
         </div>
-        {navItems.map((item) => {
+        {navItems.filter(item => user?.role === 'admin' || ['Member Portal', 'Workout Schedules', 'Weight Management', 'Daily Updates'].includes(item.label)).map((item) => {
           const Icon = item.icon
           const isActive = location.pathname === item.path
           return (
@@ -77,6 +109,7 @@ export default function Sidebar() {
               key={item.path}
               to={item.path}
               className={`sidebar-item ${isActive ? 'active' : ''}`}
+              onClick={handleNavClick}
             >
               <Icon size={17} />
               <span style={{ flex: 1 }}>{item.label}</span>
@@ -91,7 +124,7 @@ export default function Sidebar() {
         <div className="flex items-center gap-2">
           <Flame size={13} style={{ color: 'var(--accent-primary)' }} />
           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-            <span style={{ color: '#4ade80', fontWeight: 700 }}>89</span> active · <span style={{ color: '#fbbf24', fontWeight: 700 }}>14</span> expiring
+            <span style={{ color: '#4ade80', fontWeight: 700 }}>{activeCount}</span> active · <span style={{ color: '#fbbf24', fontWeight: 700 }}>{expiringCount}</span> expiring
           </span>
         </div>
       </div>
@@ -110,12 +143,13 @@ export default function Sidebar() {
             style={{
               background: 'linear-gradient(135deg, #FACC15, #FDE047)',
               fontSize: '0.75rem',
+              flexShrink: 0,
             }}
           >
-            AD
+            {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'AD'}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '0.83rem', fontWeight: 700, color: 'white' }}>Admin User</div>
+            <div style={{ fontSize: '0.83rem', fontWeight: 700, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name || 'Admin User'}</div>
             <div style={{
               fontSize: '0.7rem',
               color: 'var(--text-muted)',
@@ -123,11 +157,11 @@ export default function Sidebar() {
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
             }}>
-              admin@gymcrm.com
+              {user?.email || 'admin@gymcrm.com'}
             </div>
           </div>
           <button
-            onClick={() => navigate('/')}
+            onClick={handleLogout}
             style={{
               color: 'var(--text-muted)',
               cursor: 'pointer',
@@ -136,6 +170,7 @@ export default function Sidebar() {
               padding: '4px',
               borderRadius: '6px',
               transition: 'all 0.2s',
+              flexShrink: 0,
             }}
             onMouseEnter={e => (e.currentTarget.style.color = '#f43f5e')}
             onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}

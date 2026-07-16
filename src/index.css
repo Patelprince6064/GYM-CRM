@@ -474,8 +474,8 @@ body {
 .hero-banner {
   position: relative;
   border-radius: 20px;
-  overflow: hidden;
   background: #111111;
+  z-index: 50;
 }
 
 .hero-banner-img {
@@ -485,6 +485,7 @@ body {
   display: block;
   opacity: 0.45;
   transition: opacity 0.3s;
+  border-radius: inherit;
 }
 
 .hero-overlay {
@@ -496,6 +497,7 @@ body {
     rgba(10, 10, 10, 0.6) 50%,
     rgba(10, 10, 10, 0.4) 100%
   );
+  border-radius: inherit;
 }
 
 /* ---- Divider ---- */
@@ -622,3 +624,239 @@ textarea.input-glass {
   resize: vertical;
   min-height: 80px;
 }
+
+/* ==================== RESPONSIVE LAYOUT SYSTEM ==================== */
+.login-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.login-left-panel {
+  display: none;
+}
+
+.login-right-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+}
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 256px;
+  background: #0D0D0D;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-open {
+  transform: translateX(0);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 40;
+}
+
+.sidebar-close-btn {
+  display: block;
+}
+
+.layout-main {
+  margin-left: 0;
+  width: 100%;
+}
+
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #0D0D0D;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.page-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.btn-text-hide-sm {
+  display: none;
+}
+
+/* Notifications Dropdown */
+.notifications-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 320px;
+  background: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  z-index: 60;
+  animation: scaleIn 0.2s ease forwards;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modal-content {
+  background: #111111;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Hero responsive elements */
+.hero-banner {
+  height: auto;
+  min-height: 200px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.hero-top-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hero-title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.login-form-wrapper {
+  width: 100%;
+  max-width: 480px;
+}
+
+.client-detail-card {
+  width: 100%;
+}
+
+/* Desktop and Tablet Adjustments */
+@media (min-width: 640px) {
+  .hero-top-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .btn-text-hide-sm {
+    display: inline;
+  }
+}
+
+@media (min-width: 1024px) {
+  .login-left-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 50%;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-mobile-logo {
+    display: none;
+  }
+  
+  .sidebar {
+    transform: translateX(0);
+  }
+  
+  .sidebar-close-btn {
+    display: none;
+  }
+  
+  .layout-main {
+    margin-left: 256px;
+    width: calc(100% - 256px);
+  }
+  
+  .mobile-header {
+    display: none;
+  }
+  
+  .page-container {
+    padding: 32px;
+  }
+  
+  .hero-banner {
+    height: 240px;
+  }
+  
+  .hero-content {
+    padding: 32px 40px;
+  }
+  
+  .hero-title {
+    font-size: 1.9rem;
+  }
+
+  .client-detail-card {
+    width: 280px;
+    min-width: 280px;
+  }
+}
+

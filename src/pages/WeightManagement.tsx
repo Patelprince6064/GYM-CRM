@@ -1,14 +1,15 @@
 // PAGE 6 - WEIGHT MANAGEMENT (Premium Dark Fitness Theme)
-import { TrendingDown, Target, Scale, Plus, Calendar, Weight } from 'lucide-react'
+import { useState } from 'react'
+import { TrendingDown, Target, Scale, Plus, Calendar, Weight, X } from 'lucide-react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts'
-import { weightHistory, weightTableData, clients } from '../data/mockData'
+import { useData } from '../context/DataContext'
+import { useAuth } from '../context/AuthContext'
 
-const selectedClient = clients[0] // Rahul Sharma
-
-const CustomTooltip = ({ active, payload, label }: any) => {
+type TooltipPayload = { value: string | number }
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) => {
   if (active && payload && payload.length) {
     return (
       <div style={{
@@ -27,6 +28,27 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 }
 
 export default function WeightManagement() {
+  const { clients, updateClient, weightHistory, addWeightEntry, weightTableData, addWeightTableEntry, addNotification } = useData()
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'admin'
+  const currentMember = clients.find(c => c.email.toLowerCase() === user?.email?.toLowerCase()) || clients[0]
+
+  const [selectedClientId, setSelectedClientId] = useState(String(clients[0]?.id || ''))
+  const [showLogModal, setShowLogModal] = useState(false)
+  const [newWeight, setNewWeight] = useState('')
+
+  const selectedClient = isAdmin 
+    ? (clients.find(c => String(c.id) === selectedClientId) || clients[0]) 
+    : currentMember
+
+  if (!selectedClient) {
+    return (
+      <div className="page-container" style={{ color: 'var(--text-muted)' }}>
+        No clients available. Please add clients first.
+      </div>
+    )
+  }
+
   const currentWeight = selectedClient.currentWeight
   const goalWeight = selectedClient.goalWeight
   const startWeight = 82.0
@@ -39,10 +61,53 @@ export default function WeightManagement() {
     bmiNum < 30 ? { label: 'Overweight', color: '#f59e0b' } :
     { label: 'Obese', color: '#f43f5e' }
 
+  // Filter weight entries relative to client weight (Rahul Sharma gets default history; other clients start with their current weight)
+  const clientWeightHistory = selectedClient.id === 1 ? weightHistory : [
+    { date: "01 Jun", weight: selectedClient.currentWeight + 1.5 },
+    { date: "03 Jun", weight: selectedClient.currentWeight + 0.8 },
+    { date: "Today", weight: selectedClient.currentWeight }
+  ]
+
+  const clientWeightTableData = selectedClient.id === 1 ? weightTableData : [
+    { date: "Today", weight: `${selectedClient.currentWeight} kg`, change: "-", bmi: bmi }
+  ]
+
+  const handleOpenLog = () => {
+    setNewWeight(String(selectedClient.currentWeight))
+    setShowLogModal(true)
+  }
+
+  const handleLogSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newWeight.trim()) return
+
+    const weightNum = Number(newWeight)
+    const oldWeight = selectedClient.currentWeight
+    const changeAmount = (weightNum - oldWeight).toFixed(1)
+    const changeStr = Number(changeAmount) > 0 ? `+${changeAmount} kg` : `${changeAmount} kg`
+
+    // Update Client Weight
+    updateClient(selectedClient.id, { currentWeight: weightNum })
+
+    const dateLabel = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
+
+    // Add to lists
+    addWeightEntry({ date: dateLabel, weight: weightNum })
+    addWeightTableEntry({
+      date: dateLabel,
+      weight: `${weightNum} kg`,
+      change: changeStr,
+      bmi: (weightNum / ((selectedClient.height / 100) ** 2)).toFixed(1)
+    })
+
+    addNotification(`Logged new weight of ${weightNum}kg for ${selectedClient.name}`, 'success')
+    setShowLogModal(false)
+  }
+
   return (
-    <div style={{ padding: '32px', maxWidth: '1200px' }}>
+    <div className="page-container">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 animate-fadeInUp" style={{ animationFillMode: 'forwards' }}>
+      <div className="flex items-center justify-between mb-8 animate-fadeInUp flex-wrap gap-4" style={{ animationFillMode: 'forwards' }}>
         <div>
           <div className="section-label">
             <Weight size={11} style={{ display: 'inline', marginRight: '5px' }} />
@@ -51,11 +116,24 @@ export default function WeightManagement() {
           <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'white', marginBottom: '4px', letterSpacing: '-0.02em' }}>
             Weight Management
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Tracking: <span style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>{selectedClient.name}</span>
-          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Tracking Client:</span>
+            <select
+              className="input-glass"
+              style={{ padding: '4px 10px', fontSize: '0.8rem', height: 'auto', background: 'rgba(255,255,255,0.02)' }}
+              value={isAdmin ? selectedClientId : String(currentMember?.id)}
+              onChange={e => setSelectedClientId(e.target.value)}
+              disabled={!isAdmin}
+            >
+              {isAdmin ? clients.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              )) : (
+                <option value={currentMember?.id}>{currentMember?.name}</option>
+              )}
+            </select>
+          </div>
         </div>
-        <button className="btn-primary">
+        <button className="btn-primary" onClick={handleOpenLog}>
           <Plus size={16} /> Log Weight
         </button>
       </div>
@@ -130,25 +208,19 @@ export default function WeightManagement() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
         {/* Weight Chart */}
         <div className="glass p-6 xl:col-span-2">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
             <div>
               <div className="section-label">Progress Chart</div>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'white', marginBottom: '2px' }}>Weight Progress</h3>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>May – June 2026</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Weight logs over time</p>
             </div>
-            <span className="badge badge-active">↓ 1.5 kg total</span>
+            <span className="badge badge-active">Active Tracking</span>
           </div>
           <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={weightHistory}>
-              <defs>
-                <linearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#FACC15" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#FACC15" stopOpacity={0} />
-                </linearGradient>
-              </defs>
+            <LineChart data={clientWeightHistory}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
               <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis domain={[79, 83]} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis domain={['auto', 'auto']} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
               <ReferenceLine y={goalWeight} stroke="#4ade80" strokeDasharray="5 5" strokeWidth={1.5} label={{ value: 'Goal', fill: '#4ade80', fontSize: 11 }} />
               <Line type="monotone" dataKey="weight" stroke="#FACC15" strokeWidth={2.5} dot={{ fill: '#FACC15', r: 4, strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 6 }} />
@@ -199,7 +271,7 @@ export default function WeightManagement() {
         <div className="section-label mb-1">History</div>
         <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'white', marginBottom: '20px' }}>Weight History Log</h3>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '500px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 {['Date', 'Weight', 'Change', 'BMI'].map(h => (
@@ -208,7 +280,7 @@ export default function WeightManagement() {
               </tr>
             </thead>
             <tbody>
-              {weightTableData.map((row, i) => (
+              {clientWeightTableData.map((row, i) => (
                 <tr key={i} className="table-row" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                   <td style={{ padding: '13px 16px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{row.date}</td>
                   <td style={{ padding: '13px 16px', fontSize: '0.9rem', fontWeight: 700, color: 'white' }}>{row.weight}</td>
@@ -227,6 +299,45 @@ export default function WeightManagement() {
           </table>
         </div>
       </div>
+
+      {/* ===== LOG WEIGHT MODAL ===== */}
+      {showLogModal && (
+        <div className="modal-overlay" onClick={() => setShowLogModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'white' }}>⚖️ Log New Weight</h2>
+              <button onClick={() => setShowLogModal(false)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '6px', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                <X size={16} />
+              </button>
+            </div>
+            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
+
+            <form onSubmit={handleLogSubmit} className="flex flex-col gap-4">
+              <div>
+                <label className="section-label">Selected Client</label>
+                <input className="input-glass w-full" value={selectedClient.name} disabled style={{ opacity: 0.6 }} />
+              </div>
+              <div>
+                <label className="section-label">Weight (kg)</label>
+                <input
+                  className="input-glass w-full"
+                  type="number"
+                  step="0.1"
+                  value={newWeight}
+                  onChange={e => setNewWeight(e.target.value)}
+                  placeholder="e.g. 78.5"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <button className="btn-primary w-full justify-center" type="submit">
+                Log New Entry
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
