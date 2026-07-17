@@ -110,7 +110,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [weightTableData, setWeightTableData] = useState<WeightTableEntry[]>([])
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
-  const API_URL = 'http://localhost:5000/api'
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
   useEffect(() => {
     // Fetch initial data
