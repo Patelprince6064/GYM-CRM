@@ -413,8 +413,8 @@ export default function MemberDashboard() {
       </div>
 
       {/* ── Row 2: Attendance Calendar ───────────────────────── */}
-      <div className="glass p-6 mb-4 animate-fadeInUp" style={{ animationDelay: '0.25s', animationFillMode: 'forwards', opacity: 0 }}>
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+      <div className="glass p-4 mb-4 animate-fadeInUp" style={{ animationDelay: '0.25s', animationFillMode: 'forwards', opacity: 0 }}>
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <div>
             <div className="section-label mb-1">
               <Calendar size={11} style={{ display: 'inline', marginRight: '5px' }} />
@@ -441,16 +441,16 @@ export default function MemberDashboard() {
         </div>
 
         {/* Day of week headers */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '4px', marginBottom: '6px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '3px', marginBottom: '4px' }}>
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-            <div key={d} style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', paddingBottom: '4px' }}>
+            <div key={d} style={{ textAlign: 'center', fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', paddingBottom: '3px' }}>
               {d}
             </div>
           ))}
         </div>
 
         {/* Calendar grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '4px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '3px' }}>
           {/* Empty cells for offset */}
           {Array.from({ length: firstDay }).map((_, i) => (
             <div key={`e-${i}`} />
@@ -497,14 +497,14 @@ export default function MemberDashboard() {
                   justifyContent: 'center',
                   gap: '2px',
                   transition: 'all 0.2s ease',
-                  minHeight: '38px',
+                  minHeight: '28px',
                 }}
               >
-                <span style={{ fontSize: '0.78rem', fontWeight: isToday ? 800 : 600, color }}>
+                <span style={{ fontSize: '0.68rem', fontWeight: isToday ? 800 : 600, color }}>
                   {day}
                 </span>
                 {hasRecord && (
-                  <span style={{ fontSize: '0.55rem', color: present ? '#4ade80' : '#f43f5e', fontWeight: 700 }}>
+                  <span style={{ fontSize: '0.5rem', color: present ? '#4ade80' : '#f43f5e', fontWeight: 700 }}>
                     {present ? '✓' : '✗'}
                   </span>
                 )}
