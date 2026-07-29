@@ -32,3 +32,4 @@ dist-ssr
 backend/data/
 
 .vercel
+.env*
