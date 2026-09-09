@@ -61,13 +61,6 @@ npm run dev
 ```
 *The React app will compile and become available at `http://localhost:5173`.*
 
-## 🔐 Authentication Credentials
-
-By default, the application comes with a pre-configured Admin account. New users must be created by the Admin via the **Client Management** tab before they can log in.
-
-**Admin Login:**
-- **Email:** `admin123@gmail.com`
-- **Password:** `admin123`
 
 *(Note: These credentials can be changed in `src/context/AuthContext.tsx`)*
 
