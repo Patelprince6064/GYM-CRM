@@ -1,10 +1,5 @@
 ﻿<div align="center">
 
-  <img src="./public/assets/banner.jpg" alt="Gym CRM Banner" width="100%" />
-
-  <br/>
-  <br/>
-
   <h1>🏋️ GYM CRM — Fitness Management Platform</h1>
 
   <p>
