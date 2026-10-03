@@ -1,11 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, type ReactNode } from 'react'
-
-interface User {
-  name: string
-  email: string
-  role: 'admin' | 'user'
-}
+import { STORAGE_KEYS } from '../constants'
+import type { User } from '../types'
 
 interface StoredUser extends User {
   password?: string
@@ -25,31 +21,31 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('gym_crm_user')
+    const saved = localStorage.getItem(STORAGE_KEYS.user)
     return saved ? JSON.parse(saved) : null
   })
 
   const login = (email: string, password: string): boolean => {
-    const users: StoredUser[] = JSON.parse(localStorage.getItem('gym_crm_users') || '[]')
+    const users: StoredUser[] = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]')
     const found = users.find((u) => u.email === email && (u.password || '').trim() === password)
     if (found) {
       const userData: User = { name: found.name, email: found.email, role: 'user' }
       setUser(userData)
-      localStorage.setItem('gym_crm_user', JSON.stringify(userData))
+      localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(userData))
       return true
     }
     // Default admin login
     if (email === 'admin123@gmail.com' && password === 'admin123') {
       const userData: User = { name: 'Admin', email, role: 'admin' }
       setUser(userData)
-      localStorage.setItem('gym_crm_user', JSON.stringify(userData))
+      localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(userData))
       return true
     }
     // Default user login
     if (email === 'user@gymcrm.com' && password === 'user123') {
       const userData: User = { name: 'Demo User', email, role: 'user' }
       setUser(userData)
-      localStorage.setItem('gym_crm_user', JSON.stringify(userData))
+      localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(userData))
       return true
     }
     return false
@@ -60,25 +56,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (success) {
       const userData: User = { name, email, role: 'user' }
       setUser(userData)
-      localStorage.setItem('gym_crm_user', JSON.stringify(userData))
+      localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(userData))
     }
     return success
   }
 
   const registerUser = (name: string, email: string, password: string): boolean => {
-    const users: StoredUser[] = JSON.parse(localStorage.getItem('gym_crm_users') || '[]')
+    const users: StoredUser[] = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]')
     if (users.find((u) => u.email === email)) return false
     users.push({ name, email, password, role: 'user' })
-    localStorage.setItem('gym_crm_users', JSON.stringify(users))
+    localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users))
     return true
   }
 
   const resetPassword = (email: string, newPassword: string): boolean => {
-    const users: StoredUser[] = JSON.parse(localStorage.getItem('gym_crm_users') || '[]')
+    const users: StoredUser[] = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]')
     const userIndex = users.findIndex((u) => u.email === email)
     if (userIndex !== -1) {
       users[userIndex].password = newPassword
-      localStorage.setItem('gym_crm_users', JSON.stringify(users))
+      localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users))
       return true
     }
     return false
@@ -86,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem('gym_crm_user')
+    localStorage.removeItem(STORAGE_KEYS.user)
   }
 
   return (

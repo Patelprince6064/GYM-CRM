@@ -1,0 +1,16 @@
+{
+  "name": "gym-crm-server",
+  "version": "1.0.0",
+  "description": "GymCRM API server (Express + sql.js)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "sql.js": "^1.11.0"
+  }
+}

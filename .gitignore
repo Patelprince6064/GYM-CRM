@@ -28,8 +28,10 @@ dist-ssr
 .env.local
 .env.production
 
-# Backend database
+# Backend database (local dev only — never commit)
+server/data/
 backend/data/
 
 .vercel
 .env*
+!.env.example

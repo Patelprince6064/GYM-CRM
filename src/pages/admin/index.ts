@@ -1,0 +1,5 @@
+export { default as Dashboard } from './Dashboard'
+export { default as Clients } from './Clients'
+export { default as WorkoutSchedules } from './WorkoutSchedules'
+export { default as DailyUpdates } from './DailyUpdates'
+export { default as WeightManagement } from './WeightManagement'
