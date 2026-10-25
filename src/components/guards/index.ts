@@ -1,1 +1,1 @@
-export { ProtectedRoute } from './ProtectedRoute'
+export { ProtectedRoute, RequireRole } from './ProtectedRoute'

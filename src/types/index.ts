@@ -4,6 +4,8 @@ export interface User {
   name: string
   email: string
   role: 'admin' | 'user'
+  /** Member record this account is bound to. `null` for administrators. */
+  clientId?: number | null
 }
 
 export interface Client {
@@ -70,6 +72,8 @@ export interface DailyUpdate {
 export interface WeightEntry {
   date: string
   weight: number
+  /** Member this log belongs to; absent on legacy rows (treated as member 1). */
+  clientId?: number | null
 }
 
 export interface WeightTableEntry {
@@ -77,6 +81,7 @@ export interface WeightTableEntry {
   weight: string
   change: string
   bmi: string
+  clientId?: number | null
 }
 
 export interface NotificationItem {

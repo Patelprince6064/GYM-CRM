@@ -6,19 +6,19 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts'
 import { useData } from '../../context/DataContext'
-import { useAuth } from '../../context/AuthContext'
+import { findOwnMember, useAuth } from '../../context/AuthContext'
 
 type TooltipPayload = { value: string | number }
 const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) => {
   if (active && payload && payload.length) {
     return (
       <div style={{
-        background: '#1A1A1A', border: '1px solid rgba(250, 204, 21,0.2)',
+        background: '#111113', border: '1px solid rgba(255, 255, 255, 0.2)',
         borderRadius: '10px', padding: '10px 14px', color: 'white',
         boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
       }}>
-        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>{label}</div>
-        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#FACC15' }}>
+        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>{label}</div>
+        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#FFFFFF' }}>
           {payload[0].value} kg
         </div>
       </div>
@@ -31,7 +31,7 @@ export default function WeightManagement() {
   const { clients, updateClient, weightHistory, addWeightEntry, weightTableData, addWeightTableEntry, addNotification } = useData()
   const { user } = useAuth()
   const isAdmin = user?.role === 'admin'
-  const currentMember = clients.find(c => c.email.toLowerCase() === user?.email?.toLowerCase()) || clients[0]
+  const currentMember = findOwnMember(user, clients) ?? clients[0]
 
   const [selectedClientId, setSelectedClientId] = useState(String(clients[0]?.id || ''))
   const [showLogModal, setShowLogModal] = useState(false)
@@ -51,24 +51,38 @@ export default function WeightManagement() {
 
   const currentWeight = selectedClient.currentWeight
   const goalWeight = selectedClient.goalWeight
-  const startWeight = 82.0
   const diff = currentWeight - goalWeight
-  const progress = Math.min(100, Math.round(((startWeight - currentWeight) / (startWeight - goalWeight)) * 100))
+
+  // Entries recorded for the member being viewed. Rows written before
+  // ownership tracking are attributed to member 1, which is where the demo
+  // history lives.
+  const ownedHistory = weightHistory.filter(w => (w.clientId ?? 1) === selectedClient.id)
+  const ownedTable = weightTableData.filter(w => (w.clientId ?? 1) === selectedClient.id)
+
+  // Progress is measured against this member's own first recorded weigh-in,
+  // not a hardcoded starting weight. With only today's value there is no
+  // trend to report yet, so the bar sits at 0 rather than inventing one.
+  const baseline = ownedHistory[0]?.weight ?? currentWeight
+  const span = baseline - goalWeight
+  const progress = span === 0
+    ? (currentWeight === goalWeight ? 100 : 0)
+    : Math.max(0, Math.min(100, Math.round(((baseline - currentWeight) / span) * 100)))
   const bmi = (currentWeight / ((selectedClient.height / 100) ** 2)).toFixed(1)
   const bmiNum = parseFloat(bmi)
-  const bmiInfo = bmiNum < 18.5 ? { label: 'Underweight', color: '#06b6d4' } :
-    bmiNum < 25 ? { label: 'Normal', color: '#4ade80' } :
-    bmiNum < 30 ? { label: 'Overweight', color: '#f59e0b' } :
-    { label: 'Obese', color: '#f43f5e' }
+  const bmiInfo = bmiNum < 18.5 ? { label: 'Underweight', color: '#A1A1AA' } :
+    bmiNum < 25 ? { label: 'Normal', color: '#FFFFFF' } :
+    bmiNum < 30 ? { label: 'Overweight', color: '#D4D4D8' } :
+    { label: 'Obese', color: '#71717A' }
 
-  // Filter weight entries relative to client weight (Rahul Sharma gets default history; other clients start with their current weight)
-  const clientWeightHistory = selectedClient.id === 1 ? weightHistory : [
-    { date: "01 Jun", weight: selectedClient.currentWeight + 1.5 },
-    { date: "03 Jun", weight: selectedClient.currentWeight + 0.8 },
+  // A member with no logged weigh-ins shows a single real data point —
+  // their recorded current weight — instead of a fabricated trend line.
+  const clientWeightHistory = ownedHistory.length > 0 ? ownedHistory : [
     { date: "Today", weight: selectedClient.currentWeight }
   ]
+  const hasOwnHistory = ownedHistory.length > 0
+  const weightDelta = baseline - currentWeight
 
-  const clientWeightTableData = selectedClient.id === 1 ? weightTableData : [
+  const clientWeightTableData = ownedTable.length > 0 ? ownedTable : [
     { date: "Today", weight: `${selectedClient.currentWeight} kg`, change: "-", bmi: bmi }
   ]
 
@@ -82,22 +96,28 @@ export default function WeightManagement() {
     if (!newWeight.trim()) return
 
     const weightNum = Number(newWeight)
+    if (!Number.isFinite(weightNum) || weightNum <= 0 || weightNum > 500) {
+      addNotification('Enter a weight between 1 and 500 kg', 'warning')
+      return
+    }
+
     const oldWeight = selectedClient.currentWeight
-    const changeAmount = (weightNum - oldWeight).toFixed(1)
-    const changeStr = Number(changeAmount) > 0 ? `+${changeAmount} kg` : `${changeAmount} kg`
+    const changeAmount = Number((weightNum - oldWeight).toFixed(1))
+    const changeStr = changeAmount > 0 ? `+${changeAmount} kg` : `${changeAmount} kg`
 
     // Update Client Weight
     updateClient(selectedClient.id, { currentWeight: weightNum })
 
     const dateLabel = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
 
-    // Add to lists
-    addWeightEntry({ date: dateLabel, weight: weightNum })
+    // Add to lists, owned by the member being tracked
+    addWeightEntry({ date: dateLabel, weight: weightNum, clientId: selectedClient.id })
     addWeightTableEntry({
       date: dateLabel,
       weight: `${weightNum} kg`,
       change: changeStr,
-      bmi: (weightNum / ((selectedClient.height / 100) ** 2)).toFixed(1)
+      bmi: (weightNum / ((selectedClient.height / 100) ** 2)).toFixed(1),
+      clientId: selectedClient.id,
     })
 
     addNotification(`Logged new weight of ${weightNum}kg for ${selectedClient.name}`, 'success')
@@ -141,39 +161,39 @@ export default function WeightManagement() {
       {/* Top Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
         {/* Current Weight */}
-        <div className="stat-card animate-fadeInUp" style={{ animationFillMode: 'forwards', opacity: 0 }}>
+        <div className="stat-card animate-fadeInUp">
           <div className="flex items-center gap-2 mb-4">
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(250, 204, 21,0.08)', border: '1px solid rgba(250, 204, 21,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Scale size={18} color="var(--accent-primary)" />
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Scale size={18} color="#FFFFFF" />
             </div>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Current Weight</span>
           </div>
           <div style={{ fontSize: '2.4rem', fontWeight: 900, color: 'white', marginBottom: '4px', letterSpacing: '-0.03em' }}>
             {currentWeight} <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>kg</span>
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#4ade80', fontWeight: 600 }}>↓ 0.5 kg from yesterday</div>
+          <div style={{ fontSize: '0.75rem', color: '#FFFFFF', fontWeight: 600 }}>↓ 0.5 kg from yesterday</div>
         </div>
 
         {/* Goal Weight */}
-        <div className="stat-card animate-fadeInUp delay-100" style={{ animationFillMode: 'forwards', opacity: 0 }}>
+        <div className="stat-card">
           <div className="flex items-center gap-2 mb-4">
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Target size={18} color="#4ade80" />
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Target size={18} color="#FFFFFF" />
             </div>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Goal Weight</span>
           </div>
           <div style={{ fontSize: '2.4rem', fontWeight: 900, color: 'white', marginBottom: '4px', letterSpacing: '-0.03em' }}>
             {goalWeight} <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>kg</span>
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#fbbf24', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.75rem', color: '#D4D4D8', fontWeight: 600 }}>
             {diff.toFixed(1)} kg to lose
           </div>
         </div>
 
         {/* BMI Card */}
-        <div className="stat-card animate-fadeInUp delay-200" style={{ animationFillMode: 'forwards', opacity: 0 }}>
+        <div className="stat-card">
           <div className="flex items-center gap-2 mb-4">
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `${bmiInfo.color}10`, border: `1px solid ${bmiInfo.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <TrendingDown size={18} color={bmiInfo.color} />
             </div>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>BMI Score</span>
@@ -185,7 +205,7 @@ export default function WeightManagement() {
 
           {/* BMI Scale */}
           <div style={{ marginTop: '12px' }}>
-            <div style={{ height: '5px', borderRadius: '3px', background: 'linear-gradient(90deg, #06b6d4 0%, #4ade80 25%, #f59e0b 60%, #f43f5e 100%)', position: 'relative' }}>
+            <div style={{ height: '5px', borderRadius: '3px', background: 'linear-gradient(90deg, #52525b 0%, #a1a1aa 25%, #e4e4e7 60%, #ffffff 100%)', position: 'relative' }}>
               <div style={{
                 position: 'absolute',
                 left: `${Math.min(95, Math.max(5, ((bmiNum - 15) / 25) * 100))}%`,
@@ -222,8 +242,8 @@ export default function WeightManagement() {
               <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis domain={['auto', 'auto']} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <ReferenceLine y={goalWeight} stroke="#4ade80" strokeDasharray="5 5" strokeWidth={1.5} label={{ value: 'Goal', fill: '#4ade80', fontSize: 11 }} />
-              <Line type="monotone" dataKey="weight" stroke="#FACC15" strokeWidth={2.5} dot={{ fill: '#FACC15', r: 4, strokeWidth: 2, stroke: '#0A0A0A' }} activeDot={{ r: 6 }} />
+              <ReferenceLine y={goalWeight} stroke="#71717A" strokeDasharray="5 5" strokeWidth={1.5} label={{ value: 'Goal', fill: '#A1A1AA', fontSize: 11 }} />
+              <Line type="monotone" dataKey="weight" stroke="#FFFFFF" strokeWidth={2.5} dot={{ fill: '#FFFFFF', r: 4, strokeWidth: 2, stroke: '#000000' }} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -238,24 +258,30 @@ export default function WeightManagement() {
           <div style={{ marginBottom: '24px' }}>
             <div className="flex items-center justify-between mb-2">
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Goal Progress</span>
-              <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#4ade80' }}>{progress}%</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#FFFFFF' }}>{progress}%</span>
             </div>
             <div className="progress-bar" style={{ height: '8px' }}>
-              <div className="progress-fill" style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #FACC15, #FDE047)' }} />
+              <div className="progress-fill" style={{ width: `${progress}%`, background: '#FFFFFF' }} />
             </div>
             <div className="flex justify-between mt-1.5">
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{startWeight} kg start</span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                {hasOwnHistory ? `${baseline} kg first recorded` : 'No earlier weigh-in on file'}
+              </span>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{goalWeight} kg goal</span>
             </div>
           </div>
 
           <div className="flex flex-col gap-3">
             {[
-              { label: 'Starting Weight', value: `${startWeight} kg`, color: 'var(--text-secondary)' },
-              { label: 'Current Weight', value: `${currentWeight} kg`, color: 'var(--accent-primary)' },
-              { label: 'Weight Lost', value: `${(startWeight - currentWeight).toFixed(1)} kg`, color: '#4ade80' },
-              { label: 'Remaining to Goal', value: `${diff.toFixed(1)} kg`, color: '#fbbf24' },
-              { label: 'Est. Completion', value: '~Aug 2026', color: '#a78bfa' },
+              { label: 'First recorded', value: hasOwnHistory ? `${baseline} kg` : '—', color: 'var(--text-secondary)' },
+              { label: 'Current weight', value: `${currentWeight} kg`, color: '#FFFFFF' },
+              {
+                label: weightDelta >= 0 ? 'Weight lost' : 'Weight gained',
+                value: `${Math.abs(weightDelta).toFixed(1)} kg`,
+                color: '#FFFFFF',
+              },
+              { label: 'Distance to goal', value: `${Math.abs(diff).toFixed(1)} kg`, color: '#D4D4D8' },
+              { label: 'Weigh-ins recorded', value: String(ownedHistory.length), color: '#E4E4E7' },
             ].map((item, i) => (
               <div key={i} className="flex items-center justify-between p-3" style={{ borderRadius: '10px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.label}</span>
@@ -287,7 +313,7 @@ export default function WeightManagement() {
                   <td style={{ padding: '13px 16px' }}>
                     <span style={{
                       fontSize: '0.82rem', fontWeight: 700,
-                      color: row.change.startsWith('-') ? '#4ade80' : row.change === '-' ? 'var(--text-muted)' : '#f43f5e',
+                      color: row.change.startsWith('-') ? '#FFFFFF' : row.change === '-' ? 'var(--text-muted)' : '#A1A1AA',
                     }}>
                       {row.change.startsWith('-') ? '↓ ' : ''}{row.change}
                     </span>
@@ -310,7 +336,7 @@ export default function WeightManagement() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
+            <div style={{ height: '2px', background: 'rgba(255, 255, 255, 0.3)', borderRadius: '2px', marginBottom: '20px' }} />
 
             <form onSubmit={handleLogSubmit} className="flex flex-col gap-4">
               <div>

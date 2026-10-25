@@ -7,8 +7,9 @@ import initSqlJs from 'sql.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
-import { SCHEMA_SQL } from './schema.js';
+import { SCHEMA_SQL, migrateDatabase } from './schema.js';
 import { seedDatabase } from './seed-data.js';
+import { ensureDemoUsers } from './accounts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -54,6 +55,9 @@ export const initDB = async () => {
     db.run(sql);
   }
 
+  // Bring older database files up to the current column set.
+  migrateDatabase(db);
+
   // Seed initial data if clients table is empty
   const countResult = db.exec('SELECT COUNT(*) as count FROM clients');
   const count = countResult[0]?.values[0][0] || 0;
@@ -62,6 +66,9 @@ export const initDB = async () => {
     seedDatabase(db);
     console.log('Database seeded successfully!');
   }
+
+  // Guarantee the demo accounts exist (never overwrites a changed password).
+  ensureDemoUsers(db);
 
   saveDB();
   console.log('Database schema initialized successfully');

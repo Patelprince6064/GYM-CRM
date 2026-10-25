@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
-import { STORAGE_KEYS } from '../../constants'
 import { Dumbbell, Eye, EyeOff, Zap, Shield, TrendingUp, Users, Flame, ArrowRight } from 'lucide-react'
 
 const features = [
@@ -25,75 +24,76 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [currentPassword, setCurrentPassword] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
-  const { login, signup, resetPassword } = useAuth()
+  const { login, signup, changePassword, authMode } = useAuth()
   const { clients } = useData()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isForgotPassword) {
+      await handleForgotPassword(e)
+      return
+    }
     setError('')
     setSuccess('')
 
     if (!email.trim()) { setError('Please enter your email'); return }
     if (!password.trim()) { setError('Please enter your password'); return }
-    if (loginRole === 'admin') {
-      const ok = login(email.trim(), password.trim())
-      if (ok) {
-        navigate('/dashboard')
-      } else {
-        setError('Invalid admin credentials')
+
+    setIsSubmitting(true)
+    const requiredRole = loginRole === 'admin' ? 'admin' : 'user'
+    const result = await login(email.trim(), password.trim(), requiredRole)
+    setIsSubmitting(false)
+
+    if (result.ok) {
+      navigate(loginRole === 'admin' ? '/dashboard' : '/member')
+      return
+    }
+
+    // First-time activation: an administrator created this member record but
+    // no account exists yet. Registering is the only way in — it never
+    // grants the admin role, and it fails loudly if the email is unknown.
+    if (loginRole === 'user') {
+      const member = clients.find((c) => c.email.toLowerCase() === email.trim().toLowerCase())
+      if (member) {
+        setIsSubmitting(true)
+        const registered = await signup(member.name, email.trim(), password.trim())
+        setIsSubmitting(false)
+        if (registered.ok) {
+          navigate('/member')
+          return
+        }
+        if (registered.error && registered.error !== 'An account with that email already exists') {
+          setError(registered.error)
+          return
+        }
       }
-      return
     }
-
-    // User Login Flow
-    const ok = login(email.trim(), password.trim())
-    if (ok) {
-      navigate('/member')
-      return
-    }
-
-    // If login failed, check if it's a first-time login for an admin-created client
-    const users: Array<{ email: string }> = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]')
-    const userExistsInAuth = users.find((u) => u.email === email.trim())
-
-    if (userExistsInAuth) {
-      setError('Invalid email or password')
-      return
-    }
-
-    // Check if admin added them to Clients DB
-    const clientRecord = clients.find(c => c.email.toLowerCase() === email.trim().toLowerCase())
-    if (clientRecord) {
-      // First time login! Set their password and sign them up
-      const registered = signup(clientRecord.name, email.trim(), password.trim())
-      if (registered) {
-        navigate('/member')
-      } else {
-        setError('Failed to set password. Please try again.')
-      }
-    } else {
-      setError('Access Denied. Your email must be registered by an Admin first.')
-    }
+    setError(result.error ?? 'Sign in failed')
   }
 
-  const handleForgotPassword = (e: React.FormEvent) => {
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setSuccess('')
-    if (!email || !password) {
-      setError('Please enter your email and a new password.')
+    if (!email || !currentPassword || !password) {
+      setError('Enter your email, current password and new password.')
       return
     }
-    const resetSuccess = resetPassword(email, password)
-    if (resetSuccess) {
-      setSuccess('Password reset successfully! You can now log in.')
+    setIsSubmitting(true)
+    const result = await changePassword(email, currentPassword, password)
+    setIsSubmitting(false)
+    if (result.ok) {
+      setSuccess('Password updated. You can now sign in.')
       setIsForgotPassword(false)
       setPassword('')
+      setCurrentPassword('')
     } else {
-      setError('No account found with that email.')
+      setError(result.error ?? 'Unable to update the password')
     }
   }
 
@@ -109,7 +109,7 @@ export default function Login() {
   return (
     <div
       className="login-container"
-      style={{ background: '#0A0A0A', fontFamily: 'Inter, sans-serif' }}
+      style={{ background: '#000000', fontFamily: 'Inter, sans-serif' }}
     >
       {/* Left Panel – Gym Image + Branding */}
       <div className="login-left-panel">
@@ -119,42 +119,42 @@ export default function Login() {
           alt="Gym"
           style={{
             position: 'absolute', inset: 0, width: '100%', height: '100%',
-            objectFit: 'cover', opacity: 0.35,
+            objectFit: 'cover', opacity: 0.25, filter: 'grayscale(100%)',
           }}
         />
         {/* Gradient Overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(135deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.75) 60%, rgba(10,10,10,0.55) 100%)',
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.55) 100%)',
         }} />
-        {/* Yellow top stripe */}
+        {/* White top stripe */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
-          background: 'linear-gradient(90deg, #FACC15, #FDE047, #FEF08A)',
+          position: 'absolute', top: 0, left: 0, right: 0, height: '2px',
+          background: 'linear-gradient(90deg, #FFFFFF, rgba(255,255,255,0.2))',
         }} />
 
         {/* Logo */}
-        <div className="flex items-center gap-3 relative z-10 animate-fadeInUp" style={{ animationFillMode: 'forwards' }}>
+        <div className="flex items-center gap-3 relative z-10">
           <div
             className="w-12 h-12 rounded-2xl flex items-center justify-center"
             style={{
-              background: 'linear-gradient(135deg, #FACC15, #FDE047)',
-              boxShadow: '0 0 30px rgba(250, 204, 21,0.5)',
+              background: '#FFFFFF',
+              boxShadow: '0 0 24px rgba(255, 255, 255, 0.25)',
             }}
           >
-            <Dumbbell size={24} color="white" />
+            <Dumbbell size={24} color="#000000" />
           </div>
           <div>
             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
-              Gym<span style={{ color: '#FACC15' }}>CRM</span>
+              Gym<span style={{ color: '#FFFFFF' }}>CRM</span>
             </div>
             <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', fontWeight: 700 }}>FITNESS MANAGEMENT PLATFORM</div>
           </div>
         </div>
 
         {/* Hero Text */}
-        <div className="relative z-10 animate-fadeInUp" style={{ animationDelay: '0.1s', opacity: 0, animationFillMode: 'forwards' }}>
-          {/* Yellow tag */}
+        <div className="relative z-10">
+          {/* White tag */}
           <div className="yellow-tag mb-6" style={{ display: 'inline-flex' }}>
             <Flame size={12} />
             Premium CRM for Fitness Professionals
@@ -170,7 +170,7 @@ export default function Login() {
 
           {/* Motivational Quote */}
           <div style={{
-            borderLeft: '3px solid #FACC15', paddingLeft: '16px',
+            borderLeft: '2px solid #FFFFFF', paddingLeft: '16px',
             marginBottom: '36px',
           }}>
             <p style={{
@@ -190,14 +190,13 @@ export default function Login() {
               return (
                 <div
                   key={i}
-                  className="flex items-center gap-4 animate-fadeInUp"
-                  style={{ animationDelay: `${0.15 + i * 0.08}s`, opacity: 0, animationFillMode: 'forwards' }}
+                  className="flex items-center gap-4"
                 >
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(250, 204, 21,0.1)', border: '1px solid rgba(250, 204, 21,0.2)' }}
+                    style={{ background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)' }}
                   >
-                    <Icon size={16} color="#FACC15" />
+                    <Icon size={16} color="#FFFFFF" />
                   </div>
                   <div>
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'white' }}>{f.text}</div>
@@ -209,21 +208,39 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="flex gap-10 relative z-10 animate-fadeInUp" style={{ animationDelay: '0.5s', opacity: 0, animationFillMode: 'forwards' }}>
+        {/* Honest capability strip — no invented customer counts */}
+        <div className="flex flex-wrap gap-3 relative z-10">
           {[
-            { value: '500+', label: 'Gyms Using' },
-            { value: '50K+', label: 'Members' },
-            { value: '99.9%', label: 'Uptime' },
+            { value: '2 roles', label: 'Admin & member access' },
+            { value: '4 rules', label: 'Explainable insight engine' },
+            { value: '0 fees', label: 'No payment processing' },
           ].map((s, i) => (
-            <div key={i}>
-              <div style={{
-                fontSize: '1.8rem', fontWeight: 900, color: 'white',
-                letterSpacing: '-0.03em',
-              }}>
+            <div
+              key={i}
+              className="flex-1"
+              style={{
+                minWidth: 130,
+                padding: '14px 16px',
+                borderRadius: 14,
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
                 {s.value}
               </div>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{s.label}</div>
+              <div
+                style={{
+                  fontSize: '0.68rem',
+                  color: 'rgba(255,255,255,0.45)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  fontWeight: 600,
+                  marginTop: 3,
+                }}
+              >
+                {s.label}
+              </div>
             </div>
           ))}
         </div>
@@ -231,35 +248,35 @@ export default function Login() {
 
       {/* Right Panel – Login/Signup Form */}
       <div className="login-right-panel">
-        <div className="w-full login-form-wrapper animate-fadeInUp" style={{ animationFillMode: 'forwards' }}>
+        <div className="w-full login-form-wrapper">
           {/* Mobile Logo */}
           <div className="login-mobile-logo">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #FACC15, #FDE047)' }}
+              style={{ background: '#FFFFFF' }}
             >
-              <Dumbbell size={20} color="white" />
+              <Dumbbell size={20} color="#000000" />
             </div>
             <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white' }}>
-              Gym<span style={{ color: '#FACC15' }}>CRM</span>
+              Gym<span style={{ color: '#FFFFFF' }}>CRM</span>
             </div>
           </div>
 
           {/* Card */}
           <div
             style={{
-              background: '#111111',
-              border: '1px solid rgba(255,255,255,0.07)',
+              background: '#111113',
+              border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '24px',
               padding: '40px',
-              boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 1px rgba(250, 204, 21,0.1)',
+              boxShadow: '0 40px 80px rgba(0,0,0,0.8)',
             }}
             className="login-card"
           >
             {/* Top accent */}
             <div style={{
-              height: '3px',
-              background: 'linear-gradient(90deg, #FACC15, #FDE047)',
+              height: '2px',
+              background: 'rgba(255, 255, 255, 0.3)',
               borderRadius: '2px',
               marginBottom: '32px',
             }} />
@@ -298,20 +315,38 @@ export default function Login() {
                 {isForgotPassword ? 'Reset Password 🔐' : 'Welcome Back 💪'}
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                {isForgotPassword ? 'Enter your email and a new password' : `Sign in to your GymCRM ${loginRole} panel`}
+                {isForgotPassword
+                  ? 'Enter your email, current password and a new password'
+                  : `Sign in to your GymCRM ${loginRole} panel`}
               </p>
             </div>
+
+            {authMode === 'local' && (
+              <div style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                borderRadius: '10px',
+                padding: '9px 13px',
+                marginBottom: '16px',
+                fontSize: '0.76rem',
+                color: '#D4D4D8',
+                fontWeight: 600,
+              }}>
+                Backend unreachable — this session was verified against credentials stored in this
+                browser only. Server-side checks resume once the API is back.
+              </div>
+            )}
 
             {/* Error / Success */}
             {error && (
               <div style={{
-                background: 'rgba(244,63,94,0.1)',
-                border: '1px solid rgba(244,63,94,0.3)',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.25)',
                 borderRadius: '10px',
                 padding: '10px 14px',
                 marginBottom: '16px',
                 fontSize: '0.82rem',
-                color: '#fb7185',
+                color: '#FFFFFF',
                 fontWeight: 600,
               }}>
                 {error}
@@ -319,13 +354,13 @@ export default function Login() {
             )}
             {success && (
               <div style={{
-                background: 'rgba(34,197,94,0.1)',
-                border: '1px solid rgba(34,197,94,0.3)',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.3)',
                 borderRadius: '10px',
                 padding: '10px 14px',
                 marginBottom: '16px',
                 fontSize: '0.82rem',
-                color: '#4ade80',
+                color: '#FFFFFF',
                 fontWeight: 600,
               }}>
                 {success}
@@ -357,7 +392,7 @@ export default function Login() {
                   color: 'var(--text-secondary)', marginBottom: '8px',
                   textTransform: 'uppercase', letterSpacing: '0.06em',
                 }}>
-                  Password
+                  {isForgotPassword ? 'New Password' : 'Password'}
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
@@ -365,13 +400,15 @@ export default function Login() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder={isForgotPassword ? 'Choose a new password' : 'Enter your password'}
                     style={{ paddingRight: '44px' }}
-                    autoComplete="current-password"
+                    autoComplete={isForgotPassword ? 'new-password' : 'current-password'}
+                    minLength={6}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                     style={{
                       position: 'absolute', right: '12px', top: '50%',
                       transform: 'translateY(-50%)', background: 'none', border: 'none',
@@ -383,21 +420,57 @@ export default function Login() {
                 </div>
                 {!isForgotPassword && (
                   <div style={{ textAlign: 'right', marginTop: '8px' }}>
-                    <span onClick={() => setIsForgotPassword(true)} style={{ fontSize: '0.78rem', color: 'var(--accent-primary)', cursor: 'pointer', fontWeight: 600 }}>
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => { setIsForgotPassword(true); setError(''); setSuccess('') }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          setIsForgotPassword(true)
+                          setError('')
+                          setSuccess('')
+                        }
+                      }}
+                      style={{ fontSize: '0.78rem', color: 'var(--accent-primary)', cursor: 'pointer', fontWeight: 600 }}
+                    >
                       Forgot password?
                     </span>
                   </div>
                 )}
               </div>
 
+              {/* Changing a password always requires the current one. */}
+              {isForgotPassword && (
+                <div>
+                  <label style={{
+                    display: 'block', fontSize: '0.78rem', fontWeight: 700,
+                    color: 'var(--text-secondary)', marginBottom: '8px',
+                    textTransform: 'uppercase', letterSpacing: '0.06em',
+                  }}>
+                    Current Password
+                  </label>
+                  <input
+                    className="input-glass w-full"
+                    type="password"
+                    value={currentPassword}
+                    onChange={e => setCurrentPassword(e.target.value)}
+                    placeholder="Enter your current password"
+                    autoComplete="current-password"
+                  />
+                </div>
+              )}
+
               <button
                 type="submit"
-                onClick={isForgotPassword ? handleForgotPassword : undefined}
+                disabled={isSubmitting}
                 className="btn-primary w-full justify-center"
                 style={{ padding: '14px', fontSize: '0.95rem', marginTop: '4px', borderRadius: '12px', fontWeight: 800 }}
               >
-                {isForgotPassword ? (
-                  <>Reset Password <ArrowRight size={17} /></>
+                {isSubmitting ? (
+                  <span>Working…</span>
+                ) : isForgotPassword ? (
+                  <>Update Password <ArrowRight size={17} /></>
                 ) : (
                   <>Sign In to Dashboard <ArrowRight size={17} /></>
                 )}

@@ -3,12 +3,13 @@ import { useState } from 'react'
 import { CheckCircle2, XCircle, Droplets, Flame, Moon, Footprints, Heart, StickyNote, TrendingUp, Zap, Activity, Plus, X } from 'lucide-react'
 import { useData, type DailyUpdate } from '../../context/DataContext'
 import { useAuth } from '../../context/AuthContext'
+import { Avatar } from '../../components/ui'
 
 const moodColor: Record<string, string> = {
-  'Excellent': '#4ade80',
-  'Good': '#FDE047',
-  'Tired': '#f59e0b',
-  'Poor': '#f43f5e',
+  'Excellent': '#FFFFFF',
+  'Good': '#E4E4E7',
+  'Tired': '#D4D4D8',
+  'Poor': '#71717A',
 }
 
 const moodEmoji: Record<string, string> = {
@@ -112,10 +113,10 @@ export default function DailyUpdates() {
           </button>
           <div className="flex items-center gap-2" style={{
             padding: '8px 16px', borderRadius: '10px',
-            background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)',
           }}>
-            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80' }} />
-            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#4ade80' }} className="btn-text-hide-sm">Live Logs</span>
+            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#FFFFFF' }} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#FFFFFF' }} className="btn-text-hide-sm">Live Logs</span>
           </div>
         </div>
       </div>
@@ -123,16 +124,16 @@ export default function DailyUpdates() {
       {/* Progress Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Workouts Completed', value: `${completedCount}/${visibleUpdates.length}`, icon: Zap, color: '#FACC15', sub: `${Math.round(completedCount/(visibleUpdates.length || 1)*100)}% completion` },
-          { label: 'Avg Water Intake', value: `${avgWater}L`, icon: Droplets, color: '#06b6d4', sub: 'Recommended: 3L' },
-          { label: 'Avg Sleep Hours', value: `${avgSleep}h`, icon: Moon, color: '#a78bfa', sub: 'Recommended: 7-9h' },
-          { label: 'Avg Calories', value: avgCalories.toLocaleString(), icon: Flame, color: '#f59e0b', sub: 'kcal consumed' },
+          { label: 'Workouts Completed', value: `${completedCount}/${visibleUpdates.length}`, icon: Zap, color: '#FFFFFF', sub: `${Math.round(completedCount/(visibleUpdates.length || 1)*100)}% completion` },
+          { label: 'Avg Water Intake', value: `${avgWater}L`, icon: Droplets, color: '#E4E4E7', sub: 'Recommended: 3L' },
+          { label: 'Avg Sleep Hours', value: `${avgSleep}h`, icon: Moon, color: '#D4D4D8', sub: 'Recommended: 7-9h' },
+          { label: 'Avg Calories', value: avgCalories.toLocaleString(), icon: Flame, color: '#A1A1AA', sub: 'kcal consumed' },
         ].map((s, i) => {
           const Icon = s.icon
           return (
-            <div key={i} className="stat-card animate-fadeInUp" style={{ animationDelay: `${i * 0.08}s`, opacity: 0, animationFillMode: 'forwards' }}>
+            <div key={i} className="stat-card">
               <div className="flex items-center gap-2.5 mb-3">
-                <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: `${s.color}10`, border: `1px solid ${s.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Icon size={16} color={s.color} />
                 </div>
               </div>
@@ -149,22 +150,16 @@ export default function DailyUpdates() {
         {visibleUpdates.map((update, idx) => (
           <div
             key={`${update.clientId}-${idx}`}
-            className="glass animate-fadeInUp"
+            className="glass"
             style={{
-              padding: '20px', animationDelay: `${idx * 0.07}s`,
-              opacity: 0, animationFillMode: 'forwards',
-              borderColor: update.workout ? 'rgba(34,197,94,0.2)' : 'rgba(244,63,94,0.12)',
+              padding: '20px',
+              borderColor: update.workout ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
             }}
           >
             {/* Client Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div
-                  className={`avatar bg-gradient-to-br ${update.avatarColor}`}
-                  style={{ width: '42px', height: '42px', fontSize: '0.82rem', borderRadius: '12px' }}
-                >
-                  {update.avatar}
-                </div>
+                <Avatar name={update.name} initials={update.avatar} color={update.avatarColor} size={42} radius={12} fontSize={14} />
                 <div>
                   <div style={{ fontSize: '0.92rem', fontWeight: 700, color: 'white' }}>{update.name}</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{update.workoutName}</div>
@@ -172,7 +167,7 @@ export default function DailyUpdates() {
               </div>
               <div style={{
                 fontSize: '1.2rem', width: '34px', height: '34px', borderRadius: '10px',
-                background: 'rgba(250, 204, 21,0.08)', border: '1px solid rgba(250, 204, 21,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {moodEmoji[update.mood] || '😊'}
               </div>
@@ -181,14 +176,14 @@ export default function DailyUpdates() {
             {/* Workout Status */}
             <div className="flex items-center gap-2 mb-4" style={{
               padding: '10px 14px', borderRadius: '10px',
-              background: update.workout ? 'rgba(16,185,129,0.1)' : 'rgba(244,63,94,0.1)',
-              border: `1px solid ${update.workout ? 'rgba(16,185,129,0.25)' : 'rgba(244,63,94,0.25)'}`,
+              background: update.workout ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${update.workout ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)'}`,
             }}>
               {update.workout
-                ? <CheckCircle2 size={16} color="#4ade80" />
-                : <XCircle size={16} color="#f43f5e" />
+                ? <CheckCircle2 size={16} color="#FFFFFF" />
+                : <XCircle size={16} color="#71717A" />
               }
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: update.workout ? '#4ade80' : '#f43f5e' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: update.workout ? '#FFFFFF' : '#A1A1AA' }}>
                 Workout {update.workout ? 'Completed' : 'Skipped'}
               </span>
             </div>
@@ -196,10 +191,10 @@ export default function DailyUpdates() {
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3 mb-4">
               {[
-                { icon: Droplets, label: 'Water', value: `${update.water}L`, color: '#06b6d4' },
-                { icon: Flame, label: 'Calories', value: `${update.calories} kcal`, color: '#f59e0b' },
-                { icon: Moon, label: 'Sleep', value: `${update.sleep}h`, color: '#8b5cf6' },
-                { icon: Footprints, label: 'Steps', value: update.steps.toLocaleString(), color: '#10b981' },
+                { icon: Droplets, label: 'Water', value: `${update.water}L`, color: '#FFFFFF' },
+                { icon: Flame, label: 'Calories', value: `${update.calories} kcal`, color: '#E4E4E7' },
+                { icon: Moon, label: 'Sleep', value: `${update.sleep}h`, color: '#D4D4D8' },
+                { icon: Footprints, label: 'Steps', value: update.steps.toLocaleString(), color: '#A1A1AA' },
               ].map((stat, i) => {
                 const Icon = stat.icon
                 return (
@@ -221,19 +216,19 @@ export default function DailyUpdates() {
             {/* Heart Rate */}
             <div className="flex items-center justify-between mb-3" style={{
               padding: '8px 12px', borderRadius: '10px',
-              background: 'rgba(244,63,94,0.04)', border: '1px solid rgba(244,63,94,0.1)',
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
             }}>
               <div className="flex items-center gap-1.5">
-                <Heart size={13} color="#f43f5e" />
-                <span style={{ fontSize: '0.75rem', color: 'rgba(244,63,94,0.8)' }}>Resting Heart Rate</span>
+                <Heart size={13} color="#FFFFFF" />
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>Resting Heart Rate</span>
               </div>
-              <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#f43f5e' }}>{update.heartRate} bpm</span>
+              <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#FFFFFF' }}>{update.heartRate} bpm</span>
             </div>
 
             {/* Mood */}
             <div className="flex items-center justify-between mb-3">
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Mood</span>
-              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: moodColor[update.mood] || '#FDE047' }}>
+              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: moodColor[update.mood] || '#FFFFFF' }}>
                 {update.mood}
               </span>
             </div>
@@ -268,12 +263,7 @@ export default function DailyUpdates() {
               {i < visibleUpdates.length - 1 && (
                 <div style={{ position: 'absolute', left: '17px', top: '36px', bottom: '0', width: '1px', background: 'rgba(255,255,255,0.05)' }} />
               )}
-              <div
-                className={`avatar bg-gradient-to-br ${update.avatarColor} flex-shrink-0`}
-                style={{ width: '36px', height: '36px', fontSize: '0.7rem', borderRadius: '10px' }}
-              >
-                {update.avatar}
-              </div>
+              <Avatar name={update.name} initials={update.avatar} color={update.avatarColor} size={36} radius={10} fontSize={12} />
               <div>
                 <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: '3px' }}>
                   <span style={{ fontSize: '0.87rem', fontWeight: 700, color: 'white' }}>{update.name}</span>
@@ -304,7 +294,7 @@ export default function DailyUpdates() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
+            <div style={{ height: '2px', background: 'rgba(255, 255, 255, 0.3)', borderRadius: '2px', marginBottom: '20px' }} />
 
             <form onSubmit={handleLogSubmit} className="flex flex-col gap-4">
               <div>

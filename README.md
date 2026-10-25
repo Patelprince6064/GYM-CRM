@@ -1,555 +1,491 @@
 ﻿<div align="center">
 
-  <h1>🏋️ GYM CRM — Fitness Management Platform</h1>
+  <h1>GYM CRM — Fitness Management Platform</h1>
 
   <p>
-    A premium, full-stack Customer Relationship Management platform built exclusively for fitness businesses.<br/>
-    Manage members, track performance, and grow your gym — all from a single, beautiful dashboard.
+    A full-stack management platform for fitness businesses, with a cinematic public
+    site, an operator dashboard, and a member portal — all sharing one design system
+    and one deterministic insight engine.
   </p>
 
   <br/>
 
-  ![Version](https://img.shields.io/badge/version-1.0.0-FACC15?style=for-the-badge&labelColor=0a0a0a)
+  ![Version](https://img.shields.io/badge/version-1.0.0-C6FF3D?style=for-the-badge&labelColor=0a0a0a)
   ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&labelColor=0a0a0a)
   ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&labelColor=0a0a0a)
   ![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js&labelColor=0a0a0a)
-  ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&labelColor=0a0a0a)
+  ![SQLite](https://img.shields.io/badge/SQLite-sql.js-003B57?style=for-the-badge&logo=sqlite&labelColor=0a0a0a)
   ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge&labelColor=0a0a0a)
 
-  <br/>
-
-  [🚀 Live Demo](#) · [📖 Documentation](#table-of-contents) · [🐛 Report Bug](#contributing) · [✨ Request Feature](#contributing)
-
-  <br/>
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Overview](#-overview)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Architecture](#-architecture)
-- [Database Schema](#-database-schema)
-- [API Reference](#-api-reference)
-- [Getting Started](#-getting-started)
-- [Environment Variables](#-environment-variables)
-- [Project Structure](#-project-structure)
-- [Deployment](#-deployment)
-- [Contributing](#-contributing)
-- [License](#-license)
-
----
-
-## 🌟 Overview
-
-**Gym CRM** is an enterprise-grade fitness management platform designed to give gym owners, trainers, and members an all-in-one digital workspace. Built with a modern **React 19 + TypeScript** frontend and a robust **Node.js/Express** backend, it delivers real-time data insights, member lifecycle management, and personalized member portals — all wrapped in a stunning dark-mode, glassmorphism UI.
-
-> **Who is it for?**
-> - 🏢 **Gym Owners & Admins** — Full operational control: client management, analytics, communication
-> - 💪 **Members** — A personal health companion: logs, weight tracking, BMI, and progress charts
+- [Overview](#overview)
+- [Features](#features)
+- [Design System](#design-system)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Authentication & Roles](#authentication--roles)
+- [Environment Variables](#environment-variables)
+- [Architecture](#architecture)
+- [Database Schema](#database-schema)
+- [API Reference](#api-reference)
+- [Project Structure](#project-structure)
+- [Verification](#verification)
+- [Deployment](#deployment)
+- [Known Limitations](#known-limitations)
+- [License](#license)
 
 ---
 
-## ✨ Features
+## Overview
 
-### 👑 Admin Panel
+GYM CRM has three surfaces:
+
+| Surface | Route | Audience |
+|---|---|---|
+| Public site | `/` | Prospective customers — no API calls at all |
+| Operator workspace | `/dashboard`, `/clients`, `/memberships`, `/reports`, `/workouts`, `/daily-updates`, `/weight` | Administrators |
+| Member portal | `/member`, `/member-dashboard`, `/member-activity` | Signed-in members |
+
+Everything the product claims to know is derived from records it actually holds.
+There are no placeholder KPIs, no invented growth percentages and no fabricated
+trend lines: where a comparison cannot be made honestly, the trend indicator is
+omitted and the panel says so.
+
+---
+
+## Features
+
+### Public site (`/`)
+
+Transparent→solid navbar with an animated mobile menu, a near-full-screen hero,
+a dashboard preview with floating metrics (desktop-only parallax), a metrics and
+capabilities strip, six alternating feature sections, an intelligence section, a
+three-step "how it works", a membership section, a final CTA and a footer.
+
+The page is a **public route and never calls the API**. Its figures are computed
+from the bundled demo dataset and labelled "Sample workspace / Sample data".
+
+### Operator workspace
 
 | Feature | Description |
 |---|---|
-| **Interactive Dashboard** | Real-time KPI cards, membership growth charts (Recharts), and a live activity feed |
-| **Client Management** | Create, view, edit, and archive member profiles with plan tracking |
-| **Membership Status Tracking** | Visualize active, expiring-soon, and expired memberships at a glance |
-| **Daily Logs Oversight** | Monitor all member workout logs, water intake, calorie counts, sleep, and heart rate |
-| **Weight Management** | View all members weight histories and BMI trends on interactive charts |
-| **Workout Schedule Viewer** | Global view of all member workout programs and daily schedules |
-| **Live Chat** | Real-time admin-to-member direct messaging system |
-| **Notification Center** | System-generated alerts for membership renewals, weight updates, and activity milestones |
-| **Report Export** | Download daily and weekly CRM data reports |
+| **Dashboard** | Greeting header, honest KPI cards, member growth + attendance charts, plan mix donut, quick actions |
+| **Gym Pulse** | Today's roster, real week-on-week check-in comparison, membership phase totals |
+| **Smart Action Center** | De-duplicated, priority-ranked task list with dismiss / restore |
+| **Member Milestones** | Streaks and visit counts evidenced by actual check-in rows |
+| **Members** | Search, filter, sort, table + card views, detail panel, confirm dialogs, CSV |
+| **Memberships** | Real expiry dates, phase filters, one-click renewal, CSV export |
+| **Reports** | Date-ranged datasets with preview table and CSV download |
+| **Global search** | ⌘K / Ctrl-K palette across members and pages |
+| **Workout schedules, daily logs, weight management** | Full CRUD with validation |
 
-### 🙋 Member Portal
+### Member portal
 
-| Feature | Description |
+Personal dashboard, activity log with tabs, weight tracker with BMI, profile
+picture upload, daily log entry, and plan/expiry messaging.
+
+### What this product deliberately does **not** do
+
+- **No payment processing.** Renewals are staff-recorded changes to a date field.
+- **No machine-learning or medical claims.** The insight engine is four published
+  rules over your records (see `src/lib/insights.ts`).
+- **No invented statistics.**
+
+---
+
+## Design System
+
+Dark-first, single accent, Inter-only typography.
+
+| Token | Value |
 |---|---|
-| **Personalized Dashboard** | Current plan status, attendance tracking, and daily goal summary |
-| **Daily Activity Logs** | Log workouts, water intake, calories, sleep hours, steps, mood, and heart rate |
-| **Weight Tracker** | Log weight entries, auto-calculate BMI, and visualize progress on a live graph |
-| **Progress History** | Full historical view of all personal weight and fitness log entries |
-| **Role-Based Isolation** | Strict data separation — members can only access their own private records |
+| Page background | `#070807` |
+| Surface | `#0D100E` |
+| Raised surface | `#121612` |
+| Border | `rgba(255,255,255,0.09)` |
+| Accent (lime) | `#C6FF3D` |
+| Accent (sage) | `#9BBE72` |
+| Primary text | `#F5F7F2` |
+| Secondary text | `#969B93` |
+
+Tokens, component layers (buttons, forms, badges, cards, tables, modals, charts),
+motion utilities, reduced-motion overrides and responsive rules all live in
+`src/styles/index.css`. `BRAND` in `src/constants/index.ts` is a configurable
+label layer — change those strings and the UI re-labels itself.
+
+Motion runs on the existing Framer Motion dependency and animates only
+`transform`/`opacity`. `prefers-reduced-motion` disables reveals, counters and
+parallax throughout.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Frontend
-| Technology | Version | Purpose |
-|---|---|---|
-| **React** | 19.x | Core UI framework |
-| **TypeScript** | ~6.0 | Type-safe development |
-| **Vite** | 8.x | Blazing-fast build tooling & HMR |
-| **Tailwind CSS** | v4.3 | Utility-first CSS framework |
-| **Framer Motion** | 12.x | Declarative animations & micro-interactions |
-| **Recharts** | 3.x | Responsive data visualization |
-| **Lucide React** | Latest | Beautiful, consistent icon library |
-| **React Router DOM** | v7 | Client-side routing |
+**Frontend** — React 19, TypeScript ~6.0, Vite 8, Tailwind CSS v4, Framer Motion 12,
+Recharts 3, Lucide, React Router v7.
 
-### Backend
-| Technology | Version | Purpose |
-|---|---|---|
-| **Node.js** | LTS | JavaScript runtime |
-| **Express.js** | 4.x | Lightweight HTTP server & API routing |
-| **SQLite3** | via better-sqlite3 | Embedded relational database |
-| **sql.js** | 1.x | In-memory SQLite for serverless environments |
-| **CORS** | 2.x | Cross-origin resource sharing middleware |
+**Backend** — Node.js LTS, Express 4, `sql.js` (SQLite), `node:crypto` for
+passwords and session tokens. No authentication dependency is added.
 
-### DevOps & Tooling
-| Tool | Purpose |
-|---|---|
-| **Vercel** | Frontend deployment + serverless API functions |
-| **Render** | Persistent backend deployment |
-| **concurrently** | Run frontend and backend in parallel locally |
-| **ESLint** | Code quality enforcement |
+**Tooling** — concurrently, ESLint, Vercel (frontend + serverless API),
+Render (persistent backend).
 
 ---
 
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        CLIENT (Browser)                      │
-│                                                             │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   │
-│  │  Auth Pages  │   │  Admin Panel │   │ Member Portal│   │
-│  │  (Login)     │   │  (Dashboard, │   │ (Dashboard,  │   │
-│  │              │   │   Clients,   │   │  Activity,   │   │
-│  │              │   │   Reports)   │   │  Weight)     │   │
-│  └──────┬───────┘   └──────┬───────┘   └──────┬───────┘   │
-│         │                  │                   │            │
-│         └──────────────────┼───────────────────┘            │
-│                            │ React Router v7                 │
-│                    ┌───────┴────────┐                       │
-│                    │  AuthContext   │                       │
-│                    │  (Role-Based)  │                       │
-│                    └───────┬────────┘                       │
-└────────────────────────────┼────────────────────────────────┘
-                             │ REST API (/api/*)
-                             │ Vite Dev Proxy → localhost:5000
-                             │ Vercel → /api/index.js (serverless)
-┌────────────────────────────┼────────────────────────────────┐
-│                     BACKEND (Express.js)                     │
-│                            │                                 │
-│           ┌────────────────┼──────────────────┐             │
-│           │                │                  │             │
-│     ┌─────▼──────┐  ┌──────▼──────┐  ┌───────▼──────┐     │
-│     │  /clients  │  │/daily-updates│  │  /weight-    │     │
-│     │            │  │             │  │   history    │     │
-│     └─────┬──────┘  └──────┬──────┘  └───────┬──────┘     │
-│           │                │                  │             │
-│     ┌─────▼──────┐  ┌──────▼──────┐           │            │
-│     │/notifications│ │/chat-messages│          │            │
-│     └─────┬──────┘  └──────┬──────┘           │            │
-│           └────────────────┼──────────────────┘            │
-│                            │                                 │
-│                    ┌───────▼────────┐                       │
-│                    │   SQLite DB    │                       │
-│                    │   (gym.db)     │                       │
-│                    │   [Persistent] │                       │
-│                    └────────────────┘                       │
-└─────────────────────────────────────────────────────────────┘
-```
-
-> **Dual Deployment Strategy**: The Express app factory (`createApp`) is decoupled from the HTTP server, allowing it to be used both as a persistent Render web service (`server/src/server.js`) and as Vercel serverless functions (`api/index.js`) — sharing the same route and middleware logic.
-
----
-
-## 🗄️ Database Schema
-
-The SQLite database (`gym.db`) is auto-created on first run. All tables use `CREATE TABLE IF NOT EXISTS` for safe initialization.
-
-```sql
--- Member profiles and subscription management
-CREATE TABLE clients (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  name          TEXT NOT NULL,
-  age           INTEGER,
-  phone         TEXT,
-  email         TEXT,
-  avatar        TEXT,
-  avatarColor   TEXT,
-  plan          TEXT,           -- e.g., "Monthly", "Quarterly", "Annual"
-  startDate     TEXT,
-  endDate       TEXT,
-  remainingDays INTEGER,
-  currentWeight REAL,
-  goalWeight    REAL,
-  height        REAL,
-  status        TEXT,           -- "active" | "expiring" | "expired"
-  goal          TEXT,
-  attendance    INTEGER DEFAULT 0
-);
-
--- Daily health & activity entries per member
-CREATE TABLE daily_updates (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  clientId    INTEGER,
-  name        TEXT,
-  avatar      TEXT,
-  avatarColor TEXT,
-  date        TEXT,
-  workout     BOOLEAN,
-  workoutName TEXT,
-  water       INTEGER,          -- in ml
-  calories    INTEGER,
-  sleep       REAL,             -- in hours
-  steps       INTEGER,
-  mood        TEXT,
-  notes       TEXT,
-  heartRate   INTEGER
-);
-
--- Weight progress tracking (chart data)
-CREATE TABLE weight_history (
-  id     INTEGER PRIMARY KEY AUTOINCREMENT,
-  date   TEXT,
-  weight REAL
-);
-
--- Weight log table with BMI records
-CREATE TABLE weight_table_data (
-  id     INTEGER PRIMARY KEY AUTOINCREMENT,
-  date   TEXT,
-  weight TEXT,
-  change TEXT,
-  bmi    TEXT
-);
-
--- System & event notifications
-CREATE TABLE notifications (
-  id      INTEGER PRIMARY KEY AUTOINCREMENT,
-  message TEXT,
-  time    TEXT,
-  read    BOOLEAN DEFAULT 0,
-  type    TEXT                  -- "info" | "warning" | "success"
-);
-
--- Admin to member chat messages
-CREATE TABLE chat_messages (
-  id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  text       TEXT,
-  sender     TEXT,             -- "admin" | "member"
-  senderName TEXT,
-  timestamp  TEXT,
-  time       TEXT
-);
-```
-
----
-
-## 📡 API Reference
-
-All API routes are prefixed with `/api`. The backend runs on `http://localhost:5000` in development.
-
-### Health
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/health` | Server health check |
-
-### Clients
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/clients` | Fetch all clients |
-| `GET` | `/api/clients/:id` | Fetch single client |
-| `POST` | `/api/clients` | Create new client |
-| `PUT` | `/api/clients/:id` | Update client profile |
-| `DELETE` | `/api/clients/:id` | Delete a client |
-
-### Daily Updates
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/daily-updates` | Fetch all daily logs |
-| `GET` | `/api/daily-updates/:clientId` | Fetch logs for a specific client |
-| `POST` | `/api/daily-updates` | Submit a new daily log |
-| `PUT` | `/api/daily-updates/:id` | Update a log entry |
-
-### Weight Tracking
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/weight-history` | Fetch chart weight history |
-| `GET` | `/api/weight-table-data` | Fetch tabular weight log with BMI |
-| `POST` | `/api/weight-history` | Add a new weight entry |
-| `POST` | `/api/weight-table-data` | Add a weight record with BMI |
-
-### Notifications
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/notifications` | Fetch all notifications |
-| `PUT` | `/api/notifications/:id/read` | Mark a notification as read |
-| `POST` | `/api/notifications` | Create a notification |
-
-### Chat
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/chat-messages` | Fetch all chat messages |
-| `POST` | `/api/chat-messages` | Send a new message |
-
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-Ensure you have the following installed:
+- Node.js ≥ 18
+- npm ≥ 9
 
-- **Node.js** >= 18.x — [Download](https://nodejs.org/)
-- **npm** >= 9.x (bundled with Node.js)
-- **Git** — [Download](https://git-scm.com/)
-
-### 1. Clone the Repository
+### 1. Install
 
 ```bash
-git clone https://github.com/your-username/gym-crm.git
-cd gym-crm
-```
-
-### 2. Configure Environment Variables
-
-```bash
-# Copy the example environment file
-cp .env.example .env
-```
-
-Edit `.env` to match your setup (see [Environment Variables](#-environment-variables)).
-
-### 3. Install Dependencies
-
-```bash
-# Install root (frontend) dependencies
 npm install
-
-# Install backend dependencies
-cd server && npm install && cd ..
+npm --prefix server install
 ```
 
-### 4. Run in Development Mode
+### 2. Configure (optional for local dev)
 
-The following command starts both the frontend and backend concurrently:
+```bash
+copy .env.example .env      # Windows
+cp .env.example .env        # macOS / Linux
+```
+
+Set `AUTH_SECRET` if you want sessions to survive a server restart (see
+[Environment Variables](#environment-variables)). Without it the server generates
+an ephemeral key and prints a warning.
+
+### 3. Run
 
 ```bash
 npm run dev
 ```
 
 | Service | URL |
-|---------|-----|
-| Frontend (Vite) | `http://localhost:5173` |
-| Backend (Express) | `http://localhost:5000` |
+|---|---|
+| Frontend (Vite) | http://localhost:5173 |
+| Backend (Express) | http://localhost:5000 |
 
-> The Vite dev server proxies all `/api/*` requests to `localhost:5000`, so no CORS issues arise in development.
+Vite proxies `/api/*` to `localhost:5000`.
 
-### 5. Default Credentials
+### 4. Sign in
 
-> Change these before deploying to production.
+| Role | Email | Password |
+|---|---|---|
+| Administrator | `admin123@gmail.com` | `admin123` |
+| Member | `user@gymcrm.com` | `user123` |
 
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | `admin` | `admin123` |
-| Member | *(any member name)* | `member123` |
+Override both with `DEFAULT_ADMIN_PASSWORD` / `DEFAULT_MEMBER_PASSWORD` before
+any real deployment, and change them through the app afterwards.
 
 ---
 
-## 🔐 Environment Variables
+## Authentication & Roles
 
-Create a `.env` file in the project root. Reference `.env.example` for all required keys.
+### Model
+
+- Passwords are salted **scrypt** hashes (`server/src/lib/crypto.js`); they are
+  never returned, logged or stored in plaintext.
+- Sessions are **HMAC-SHA256 signed stateless tokens** (12-hour expiry) sent as
+  `Authorization: Bearer <token>` and attached to every request by
+  `src/services/api.ts`.
+- `POST /api/auth/register` only opens an account for an email that already
+  belongs to a member record, and always issues the `user` role — the request
+  body cannot ask for admin.
+- Password changes require the **current** password.
+
+### Roles
+
+| Capability | Admin | Member |
+|---|:---:|:---:|
+| Read all members / logs / attendance | ✅ | ❌ |
+| Read own record, logs, attendance, weight | ✅ | ✅ |
+| Create, edit, delete members | ✅ | ❌ |
+| Change plan, start/end date, status, amount | ✅ | ❌ |
+| Update own body metrics / profile picture | ✅ | ✅ |
+| Notifications feed, dismissed signals | ✅ | ❌ |
+| Record attendance, delete attendance rows | ✅ | own rows only / ❌ |
+
+Enforcement is **server-side** in `server/src/middleware/auth.js` plus per-route
+checks in `server/src/routes/*`. A member session reads exactly one member row,
+one attendance slice and one weight slice, regardless of what it asks for.
+
+### Offline fallback
+
+If the API is unreachable at sign-in, the client falls back to credentials held in
+this browser and shows an amber banner saying so. That mode is a demo convenience:
+it is labelled in the UI and never presented as a server-verified session.
+
+---
+
+## Environment Variables
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+|---|---|---|
 | `VITE_API_URL` | `/api` | Base URL for API requests from the frontend |
-| `PORT` | `5000` | Port the Express backend server listens on |
-| `NODE_ENV` | `development` | Environment mode (`development` or `production`) |
+| `PORT` | `5000` | Port the Express server listens on |
+| `AUTH_SECRET` | ephemeral | HMAC key for session tokens — **at least 16 characters** |
+| `DEFAULT_ADMIN_PASSWORD` | `admin123` | Seed password for the demo admin (first boot only) |
+| `DEFAULT_MEMBER_PASSWORD` | `user123` | Seed password for the demo member (first boot only) |
+| `NODE_ENV` | `development` | `development` or `production` |
 
-```env
-# .env
-VITE_API_URL=/api
-PORT=5000
-```
-
----
-
-## 📁 Project Structure
-
-```
-gym-crm/
-├── api/
-│   └── index.js                # Vercel serverless function entry point
-│
-├── public/
-│   └── assets/                 # Static assets (banner, icons, etc.)
-│
-├── server/                     # Express.js backend
-│   ├── src/
-│   │   ├── db/
-│   │   │   ├── database.js     # Database connection factory
-│   │   │   ├── schema.js       # SQL table definitions (single source of truth)
-│   │   │   └── seed-data.js    # Initial seed data for demo
-│   │   ├── middleware/
-│   │   │   └── cors.js         # CORS configuration middleware
-│   │   ├── routes/
-│   │   │   ├── clients.js      # Client CRUD routes
-│   │   │   ├── daily-updates.js# Daily log routes
-│   │   │   ├── weight.js       # Weight history routes
-│   │   │   ├── notifications.js# Notification routes
-│   │   │   ├── chat.js         # Chat message routes
-│   │   │   └── health.js       # Health check route
-│   │   ├── app.js              # Express app factory
-│   │   └── server.js           # HTTP server bootstrap (Render)
-│   └── package.json
-│
-├── src/                        # React frontend (TypeScript)
-│   ├── app/                    # App shell & router
-│   ├── assets/                 # Images, SVGs
-│   ├── components/             # Reusable UI components
-│   ├── constants/              # App-wide constants
-│   ├── context/                # React context (Auth, etc.)
-│   ├── data/                   # Static/mock data
-│   ├── hooks/                  # Custom React hooks
-│   ├── pages/
-│   │   ├── admin/
-│   │   │   ├── Dashboard.tsx       # Admin overview with charts
-│   │   │   ├── Clients.tsx         # Member management table
-│   │   │   ├── DailyUpdates.tsx    # All members daily logs
-│   │   │   ├── WeightManagement.tsx# Weight analytics
-│   │   │   └── WorkoutSchedules.tsx# Workout schedule viewer
-│   │   ├── auth/               # Login / auth pages
-│   │   └── member/
-│   │       ├── MemberDashboard.tsx # Member home screen
-│   │       ├── MemberPortal.tsx    # Member profile & plan
-│   │       └── MemberActivity.tsx  # Member daily log entry
-│   ├── services/               # API service layer (fetch wrappers)
-│   ├── styles/                 # Global CSS & design tokens
-│   ├── types/                  # TypeScript type definitions
-│   ├── utils/                  # Helper utilities
-│   └── main.tsx                # React app entry point
-│
-├── .env.example                # Environment variable template
-├── .gitignore
-├── index.html                  # Vite HTML entry point
-├── package.json                # Root package (frontend + scripts)
-├── render-blueprint.yaml       # Render.com deployment config
-├── tsconfig.json               # TypeScript configuration
-├── vercel.json                 # Vercel deployment config
-└── vite.config.ts              # Vite bundler configuration
-```
-
----
-
-## ☁️ Deployment
-
-This project supports two deployment strategies. Mix and match based on your needs.
-
-### Option 1: Vercel (Recommended — Full-Stack)
-
-Vercel hosts the React frontend and runs the Express backend as serverless functions via `api/index.js`.
-
-> Note: Vercel uses an in-memory SQLite (`sql.js`) instance — data is reset on each cold start. This is ideal for demos. For persistent production data, use Option 2 or connect to an external database.
-
-**Steps:**
-1. Push your repository to GitHub.
-2. Import the project on [Vercel](https://vercel.com/).
-3. Set environment variables in the Vercel dashboard.
-4. Click **Deploy**. Vercel auto-detects the `vercel.json` configuration.
-
-```json
-// vercel.json (already configured)
-{
-  "framework": "vite",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/(.*)",     "destination": "/index.html"   }
-  ]
-}
-```
-
----
-
-### Option 2: Render (Persistent Backend)
-
-Deploy the Express backend to Render for a persistent `gym.db` file on disk.
-
-**Steps:**
-1. Push your repository to GitHub.
-2. Create a new Web Service on [Render](https://render.com/) pointing to your repo.
-3. Render auto-detects `render-blueprint.yaml`.
-4. Deploy your frontend separately to Vercel or Netlify, and set `VITE_API_URL` to your Render service URL.
-
----
-
-### Option 3: Self-Hosted / VPS
+Generate a secret with:
 
 ```bash
-# 1. Build the frontend
-npm run build
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
-# 2. Start the backend
-node server/src/server.js
+`.env` and `server/data/` are gitignored. **Never commit secrets or the database.**
 
-# 3. Serve the dist/ folder with nginx or a static host
+---
+
+## Architecture
+
+```
+Browser
+  ├── Public site  (/, no API calls)
+  ├── /login       ──► POST /api/auth/login ──► { token, user }
+  └── Workspace    ──► every request carries Authorization: Bearer <token>
+        │
+        ▼  Vite dev proxy /api → localhost:5000   (Vercel: api/index.js)
+Express app factory  createApp(db)
+  ├── /api/health, /api/auth          public
+  ├── requireAuth                     ← HMAC verification, attaches req.user
+  ├── /api/clients                    per-route RBAC + record scoping
+  ├── /api/daily-updates, /attendance scoped by role
+  ├── /api/weight-history, -table     scoped by role
+  ├── /api/notifications, /signals    admin only
+  └── /api/chat-messages              authenticated
+        │
+        ▼
+sql.js  ──  server/data/gym.db (Render, persistent)
+        ──  in-memory          (Vercel serverless)
+```
+
+`createApp` is decoupled from `listen`, so `server/src/server.js` (persistent,
+Render) and `api/index.js` (serverless, Vercel) share one set of routes and
+middleware.
+
+---
+
+## Database Schema
+
+Created by `server/src/db/schema.js` (single source of truth) and migrated in
+place by `migrateDatabase()` for existing databases.
+
+```sql
+CREATE TABLE clients (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL, age INTEGER, phone TEXT, email TEXT,
+  avatar TEXT, avatarColor TEXT, plan TEXT,
+  startDate TEXT, endDate TEXT, remainingDays INTEGER,
+  currentWeight REAL, goalWeight REAL, height REAL,
+  status TEXT, goal TEXT, attendance INTEGER DEFAULT 0,
+  address TEXT, notes TEXT, membershipAmount REAL, avatarUrl TEXT
+);
+
+CREATE TABLE users (            -- API accounts (added in this release)
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL, email TEXT NOT NULL,
+  passwordHash TEXT NOT NULL, salt TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'user',
+  clientId INTEGER
+);
+CREATE UNIQUE INDEX idx_users_email ON users (email);
+
+CREATE TABLE attendance_logs (  -- one row per member per day (new)
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  clientId INTEGER NOT NULL, date TEXT NOT NULL,
+  checkInTime TEXT, checkOutTime TEXT, present BOOLEAN DEFAULT 1
+);
+CREATE UNIQUE INDEX idx_attendance_member_day ON attendance_logs (clientId, date);
+
+CREATE TABLE dismissed_signals ( -- persisted Action Center dismissals (new)
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  signalId TEXT NOT NULL UNIQUE, dismissedBy TEXT, createdAt TEXT
+);
+
+-- Also: daily_updates, weight_history (+clientId), weight_table_data
+--       (+clientId), notifications, chat_messages
+```
+
+Membership `status` and `remainingDays` are **derived from `endDate`** on every
+read path in the client, so a record never goes stale as dates pass.
+
+---
+
+## API Reference
+
+All routes are prefixed with `/api`. Everything except `/health` and `/auth/*`
+requires `Authorization: Bearer <token>`.
+
+### Auth (public)
+
+| Method | Endpoint | Body | Returns |
+|---|---|---|---|
+| `POST` | `/auth/login` | `{ email, password }` | `{ token, user }` |
+| `POST` | `/auth/register` | `{ name, email, password }` | `{ token, user }` (201) |
+| `PUT` | `/auth/password` | `{ email, currentPassword, newPassword }` | `{ success }` |
+| `GET` | `/auth/me` | — | `{ user }` (requires token) |
+| `GET` | `/health` | — | `{ status, timestamp }` |
+
+### Members
+
+| Method | Endpoint | Access |
+|---|---|---|
+| `GET` | `/clients` | admin: all · member: own row only |
+| `GET` | `/clients/:id` | owner or admin |
+| `POST` | `/clients` | admin |
+| `PUT` | `/clients/:id` | admin: all fields · member: body metrics + avatar only |
+| `DELETE` | `/clients/:id` | admin |
+
+### Attendance (new)
+
+| Method | Endpoint | Access |
+|---|---|---|
+| `GET` | `/attendance?clientId=&from=&to=&limit=` | admin: all · member: own |
+| `GET` | `/attendance/today` | admin: all · member: own |
+| `POST` | `/attendance` | admin: any member · member: self (upsert per member+day) |
+| `DELETE` | `/attendance/:id` | admin |
+
+### Insights (new)
+
+| Method | Endpoint | Access |
+|---|---|---|
+| `GET` | `/signals/dismissed` | admin |
+| `POST` | `/signals/dismissed` | admin (`{ signalId }`, idempotent) |
+| `DELETE` | `/signals/dismissed/:id` | admin |
+
+### Logs, weight, notifications, chat
+
+| Method | Endpoint | Access |
+|---|---|---|
+| `GET`/`POST` | `/daily-updates` | admin: all · member: own rows (owner forced server-side) |
+| `GET`/`POST` | `/weight-history` | admin: all · member: own |
+| `GET`/`POST` | `/weight-table-data` | admin: all · member: own |
+| `GET`/`POST`/`PUT` | `/notifications`, `/notifications/:id/read`, `/notifications/read-all` | admin |
+| `GET`/`POST` | `/chat-messages` | authenticated (sender forced from the session) |
+
+Errors always return `{ "error": "<human-readable message>" }`. Stack traces,
+SQL and internal paths are logged server-side only.
+
+---
+
+## Project Structure
+
+```
+api/index.js                 # Vercel serverless entry (in-memory sql.js)
+server/
+  src/
+    lib/crypto.js            # scrypt hashing + HMAC session tokens
+    db/
+      schema.js              # tables + migrateDatabase()
+      accounts.js            # demo accounts, email normalisation
+      database.js            # persistent connection + autosave
+      seed-data.js           # shared demo dataset (relative dates)
+    middleware/
+      auth.js                # requireAuth / requireAdmin / ownsRecord
+      cors.js
+    routes/
+      auth.js                # login / register / me / password
+      clients.js             # RBAC + record scoping
+      attendance.js  signals.js  daily-updates.js
+      weight.js  notifications.js  chat.js  health.js
+    app.js                   # createApp(db) factory
+    server.js                # HTTP bootstrap (Render)
+src/
+  app/                       # routes, providers
+  components/
+    ui/                      # Button, Card, Modal, Table, Avatar, Toast, …
+    motion/                  # Reveal, Stagger, AnimatedCounter
+    charts/                  # shared Recharts tooltip
+    layout/                  # shell, sidebar, topbar, global search
+    landing/                 # public site sections
+    dashboard/               # GymPulse, ActionCenter, Milestones
+  context/                   # AuthContext, DataContext
+  lib/insights.ts            # deterministic rules engine + CSV export
+  pages/                     # admin | member | auth | landing
+  services/api.ts            # every backend call, with auth header
+  styles/index.css           # design tokens + component layers
+  data/seed.ts               # frontend demo data
 ```
 
 ---
 
-## 🎨 UI/UX Design Principles
+## Verification
 
-| Principle | Implementation |
-|-----------|---------------|
-| **Dark Mode First** | Deep black backgrounds (`#0a0a0a`) with vibrant yellow-gold accents (`#FACC15`) |
-| **Glassmorphism** | Translucent card surfaces with `backdrop-filter: blur()` for modern depth |
-| **Micro-interactions** | Framer Motion-powered hover animations, page transitions, and chart tooltips |
-| **Responsive Design** | Mobile-first layout with Tailwind CSS breakpoints |
-| **Data Visualization** | Interactive Recharts line, bar, and area graphs with custom tooltips |
-| **Typography** | Modern sans-serif system fonts for legibility at all sizes |
+Commands actually run against this repository:
 
----
+```bash
+npx tsc -b        # type check — clean
+npm run lint      # ESLint — clean
+npm run build     # tsc + vite build — succeeds
+npm run dev       # backend + frontend together
+```
 
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn and create. Any contributions you make are **greatly appreciated**.
-
-1. **Fork** the repository
-2. **Create** your feature branch: `git checkout -b feature/amazing-feature`
-3. **Commit** your changes: `git commit -m 'feat: add amazing feature'`
-4. **Push** to the branch: `git push origin feature/amazing-feature`
-5. **Open** a Pull Request
-
-Please follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages.
-
-### Reporting Bugs
-
-If you find a bug, please open an issue with:
-- A clear, descriptive title
-- Steps to reproduce
-- Expected vs. actual behavior
-- Screenshots if applicable
+Plus a live API suite (`auth-smoke`) exercising 27 assertions against a running
+server: unauthenticated rejection, generic credential errors, admin/member login,
+tampered-token rejection, member record isolation (read/edit/delete cross-member),
+membership-term escalation blocked, self-service body metrics still allowed,
+member cannot create members, attendance scoping, notifications/signals RBAC,
+registration gating, password-change gating, and absence of stack traces or SQL
+in error bodies.
 
 ---
 
-## 📄 License
+## Deployment
+
+### Vercel (frontend + serverless API)
+
+`vercel.json` rewrites `/api/(.*)` → `api/index.js`. The serverless instance uses
+**in-memory** SQLite: data resets on every cold start — fine for demos, not for
+production. Set `AUTH_SECRET` in the dashboard.
+
+### Render (persistent backend)
+
+`render-blueprint.yaml` starts `server/src/server.js` with a persistent disk for
+`server/data/gym.db`. Set `AUTH_SECRET` and the demo password overrides as
+environment variables.
+
+### Self-hosted
+
+```bash
+npm run build
+node server/src/server.js     # serve dist/ with your web server
+```
+
+---
+
+## Known Limitations
+
+1. **Offline mode is client-side.** When the API is unreachable, the app runs on
+   a localStorage copy of the dataset and credentials held in the browser. Role
+   isolation is enforced by the API, not by that cache — acceptable for a demo,
+   not a substitute for the server.
+2. **Stateless tokens are not revocable.** A signed token stays valid until it
+   expires (12 hours). Signing out clears it client-side only; there is no
+   server-side denylist.
+3. **Weight history has no audit trail.** Entries record the owning member but
+   not who wrote them or when.
+4. **The chat thread is workspace-wide.** It is one operator↔member thread, not
+   per-member conversations.
+5. **Notifications have no owner column**, so they are admin-only rather than
+   per-recipient.
+6. **Local date display only.** Expiry maths uses the server/browser local
+   timezone with no per-gym timezone configuration.
+7. **Responsive verification** covers 1440+, 1024–1439, 768–1023 and 320–767 by
+   construction (fluid grids + explicit breakpoints); it has not been run through
+   a device lab.
+
+---
+
+## License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
-
----
-
-<div align="center">
-
-  Made with love and dedication for the fitness community
-
-  Star this repo if you find it useful!
-
-</div>

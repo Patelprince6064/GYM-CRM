@@ -1,25 +1,43 @@
-// PAGE 3 - CLIENT MANAGEMENT (Premium Dark Fitness Theme)
+// PAGE 3 - MEMBER MANAGEMENT
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Search, Plus, Phone, Mail, Target, X, ChevronRight, Users, Trash2, Edit2, MessageSquare } from 'lucide-react'
 import { useData, type Client } from '../../context/DataContext'
-
-function getStatusClass(status: string) {
-  if (status === 'Active') return 'badge badge-active'
-  if (status === 'Expiring') return 'badge badge-expiring'
-  return 'badge badge-expired'
-}
+import {
+  Avatar,
+  Button,
+  ConfirmDialog,
+  EmptyState,
+  PageHeading,
+  StatusBadge,
+  useToast,
+} from '../../components/ui'
+import { expiryLabel, DEFAULT_RULES, lastVisit } from '../../lib/insights'
 
 function getPlanColor(plan: string) {
-  if (plan === 'Elite') return '#FACC15'
-  if (plan === 'Premium') return '#FDE047'
-  return 'var(--text-secondary)'
+  if (plan === 'Elite') return '#FFFFFF'
+  if (plan === 'Premium') return '#E4E4E7'
+  return '#A1A1AA'
 }
 
 export default function Clients() {
-  const { clients, addClient, updateClient, deleteClient, addNotification } = useData()
-  const [search, setSearch] = useState('')
+  const { clients, addClient, updateClient, deleteClient, addNotification, attendanceLogs, isHydrating } = useData()
+  const toast = useToast()
+  const [searchParams] = useSearchParams()
+  // Global search and cross-links land here via `?q=<term>`.
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '')
   const [filter, setFilter] = useState('All')
   const [selected, setSelected] = useState<Client | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<Client | null>(null)
+
+  // Global search and cross-links land here via `?q=<term>`; re-sync the
+  // input when that param changes while this route is already mounted.
+  const [lastParam, setLastParam] = useState(() => searchParams.get('q'))
+  const urlParam = searchParams.get('q')
+  if (urlParam !== lastParam) {
+    setLastParam(urlParam)
+    if (urlParam !== null && urlParam !== search) setSearch(urlParam)
+  }
 
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false)
@@ -69,10 +87,10 @@ export default function Clients() {
     : null
 
   const getBmiLabel = (bmi: number) => {
-    if (bmi < 18.5) return { label: 'Underweight', color: '#06b6d4' }
-    if (bmi < 25) return { label: 'Normal', color: '#4ade80' }
-    if (bmi < 30) return { label: 'Overweight', color: '#fbbf24' }
-    return { label: 'Obese', color: '#f43f5e' }
+    if (bmi < 18.5) return { label: 'Underweight', color: '#A1A1AA' }
+    if (bmi < 25) return { label: 'Normal', color: '#FFFFFF' }
+    if (bmi < 30) return { label: 'Overweight', color: '#D4D4D8' }
+    return { label: 'Obese', color: '#71717A' }
   }
 
   const handleOpenAdd = () => {
@@ -97,7 +115,7 @@ export default function Clients() {
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !phone || !email) {
-      alert('Please fill out Name, Phone, and Email')
+      toast.toast('Name, phone and email are required', 'error')
       return
     }
 
@@ -126,7 +144,7 @@ export default function Clients() {
       membershipAmount: Number(membershipAmount) || 0
     })
 
-
+    toast.toast(`${name} added to the roster`, 'success')
     setShowAddModal(false)
   }
 
@@ -180,47 +198,56 @@ export default function Clients() {
 
     setShowEditModal(false)
     addNotification(`Updated profile details for "${name}"`, 'info')
+    toast.toast('Profile updated', 'success')
   }
 
-  const handleDelete = () => {
-    if (!selectedClient) return
-    if (window.confirm(`Are you sure you want to delete ${selectedClient.name}?`)) {
-      deleteClient(selectedClient.id)
-      setSelected(null)
-    }
+  const confirmDelete = () => {
+    if (!pendingDelete) return
+    deleteClient(pendingDelete.id)
+    setSelected(null)
+    toast.toast(`${pendingDelete.name} removed`, 'success')
+    setPendingDelete(null)
   }
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedClient || !messageText.trim()) return
-    addNotification(`Message sent to ${selectedClient.name}: "${messageText.slice(0, 30)}..."`, 'success')
+    addNotification(`Message sent to ${selectedClient.name}: "${messageText.slice(0, 30)}"`, 'success')
     setMessageText('')
     setShowMessageModal(false)
-    alert(`Message sent to ${selectedClient.name}!`)
+    toast.toast(`Note recorded for ${selectedClient.name}`, 'success')
   }
 
   return (
     <div className="page-container">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 animate-fadeInUp flex-wrap gap-4" style={{ animationFillMode: 'forwards' }}>
-        <div>
-          <div className="section-label">
-            <Users size={11} style={{ display: 'inline', marginRight: '5px' }} />
-            MANAGEMENT
-          </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'white', marginBottom: '4px', letterSpacing: '-0.02em' }}>
-            Client Management
-          </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            <span style={{ color: '#4ade80', fontWeight: 700 }}>{clients.filter(c => c.status === 'Active').length}</span> active ·{' '}
-            <span style={{ color: '#fbbf24', fontWeight: 700 }}>{clients.filter(c => c.status === 'Expiring').length}</span> expiring ·{' '}
+      <PageHeading
+        eyebrow="Workspace"
+        title="Members"
+        description={
+          <>
+            <span style={{ color: '#FFFFFF', fontWeight: 700 }}>
+              {clients.filter(c => c.status === 'Active').length}
+            </span>{' '}
+            active ·{' '}
+            <span style={{ color: '#D4D4D8', fontWeight: 700 }}>
+              {clients.filter(c => c.status === 'Expiring').length}
+            </span>{' '}
+            expiring ·{' '}
             <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{clients.length} total</span>
-          </p>
-        </div>
-        <button className="btn-primary" onClick={handleOpenAdd}>
-          <Plus size={16} /> Add Client
-        </button>
-      </div>
+            {attendanceLogs.length > 0 && (
+              <>
+                {' · '}
+                {lastVisit(attendanceLogs, clients[0]?.id ?? -1)?.date ?? 'no check-ins'} latest check-in
+              </>
+            )}
+          </>
+        }
+        actions={
+          <Button icon={<Plus size={16} />} onClick={handleOpenAdd}>
+            Add member
+          </Button>
+        }
+      />
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Main Table Area */}
@@ -249,9 +276,9 @@ export default function Clients() {
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    border: filter === f ? '1px solid rgba(250, 204, 21,0.4)' : '1px solid rgba(255,255,255,0.06)',
-                    background: filter === f ? 'rgba(250, 204, 21,0.12)' : '#1A1A1A',
-                    color: filter === f ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                    border: filter === f ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
+                    background: filter === f ? 'rgba(255, 255, 255, 0.12)' : '#111113',
+                    color: filter === f ? '#FFFFFF' : 'var(--text-secondary)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}
@@ -286,19 +313,19 @@ export default function Clients() {
                     style={{
                       borderBottom: '1px solid rgba(255,255,255,0.04)',
                       cursor: 'pointer',
-                      background: selected?.id === client.id ? 'rgba(250, 204, 21,0.06)' : undefined,
+                      background: selected?.id === client.id ? 'rgba(255, 255, 255, 0.06)' : undefined,
                     }}
                     onClick={() => setSelected(selected?.id === client.id ? null : client)}
                   >
                     <td style={{ padding: '12px' }}>
-                      <div
-                        className={`avatar bg-gradient-to-br ${client.avatarColor}`}
-                        style={{ width: '36px', height: '36px', fontSize: '0.7rem', borderRadius: '10px', overflow: 'hidden' }}
-                      >
-                        {client.avatarUrl ? (
-                          <img src={client.avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        ) : client.avatar}
-                      </div>
+                      <Avatar
+                        name={client.name}
+                        initials={client.avatarUrl ? undefined : client.avatar}
+                        src={client.avatarUrl}
+                        color={client.avatarColor}
+                        size={36}
+                        radius={10}
+                      />
                     </td>
                     <td style={{ padding: '12px' }}>
                       <div style={{ fontSize: '0.87rem', fontWeight: 700, color: 'white' }}>{client.name}</div>
@@ -317,16 +344,16 @@ export default function Clients() {
                     <td style={{ padding: '12px' }}>
                       <span style={{
                         fontSize: '0.87rem', fontWeight: 800,
-                        color: client.remainingDays === 0 ? '#f43f5e' : client.remainingDays <= 14 ? '#fbbf24' : '#4ade80',
+                        color: client.remainingDays < 0 ? '#71717A' : client.remainingDays <= DEFAULT_RULES.expiryWarnDays ? '#D4D4D8' : '#FFFFFF',
                       }}>
-                        {client.remainingDays === 0 ? 'Expired' : `${client.remainingDays}d`}
+                        {expiryLabel(client)}
                       </span>
                     </td>
                     <td style={{ padding: '12px', fontSize: '0.87rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
                       {client.currentWeight} kg
                     </td>
                     <td style={{ padding: '12px' }}>
-                      <span className={getStatusClass(client.status)}>{client.status}</span>
+                      <StatusBadge status={client.status} />
                     </td>
                     <td style={{ padding: '12px' }}>
                       <ChevronRight size={15} style={{ color: selected?.id === client.id ? 'var(--accent-primary)' : 'var(--text-muted)' }} />
@@ -336,9 +363,24 @@ export default function Clients() {
               </tbody>
             </table>
             {filtered.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                No clients match your search.
-              </div>
+              <EmptyState
+                icon={Users}
+                title={isHydrating ? 'Loading members…' : search ? `No members match “${search}”` : 'No members in this view'}
+                description={
+                  isHydrating
+                    ? 'Reading the member roster…'
+                    : search
+                      ? 'Try a different name, phone number or plan — or clear the search to see everyone.'
+                      : 'Switch the filter above, or add your first member to get started.'
+                }
+                action={
+                  search ? (
+                    <Button variant="secondary" size="sm" onClick={() => setSearch('')}>
+                      Clear search
+                    </Button>
+                  ) : undefined
+                }
+              />
             )}
           </div>
         </div>
@@ -353,8 +395,8 @@ export default function Clients() {
               padding: '16px', borderRadius: '16px'
             }}
           >
-            {/* Top Yellow Bar */}
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '12px' }} />
+            {/* Top White Bar */}
+            <div style={{ height: '2px', background: 'rgba(255, 255, 255, 0.3)', borderRadius: '2px', marginBottom: '12px' }} />
 
             <div className="flex items-center justify-between mb-4">
               <span style={{
@@ -371,17 +413,22 @@ export default function Clients() {
 
             {/* Avatar */}
             <div className="flex flex-col items-center mb-4">
-              <div
-                className={`bg-gradient-to-br ${selectedClient.avatarColor} flex items-center justify-center text-white font-black text-lg mb-2`}
-                style={{ width: '56px', height: '56px', borderRadius: '14px', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', overflow: 'hidden' }}
-              >
-                {selectedClient.avatarUrl ? (
-                  <img src={selectedClient.avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : selectedClient.avatar}
+              <div className="mb-2">
+                <Avatar
+                  name={selectedClient.name}
+                  initials={selectedClient.avatarUrl ? undefined : selectedClient.avatar}
+                  src={selectedClient.avatarUrl}
+                  color={selectedClient.avatarColor}
+                  size={56}
+                  radius={14}
+                  fontSize={18}
+                />
               </div>
               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'white' }}>{selectedClient.name}</div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '1px' }}>Age {selectedClient.age} · {selectedClient.goal}</div>
-              <span className={`${getStatusClass(selectedClient.status)} mt-1.5`} style={{ fontSize: '0.65rem', padding: '2px 8px' }}>{selectedClient.status}</span>
+              <div className="mt-1.5">
+                <StatusBadge status={selectedClient.status} />
+              </div>
             </div>
 
             {/* Contact Info */}
@@ -406,7 +453,7 @@ export default function Clients() {
                 { label: 'Membership Plan', value: selectedClient.plan, color: getPlanColor(selectedClient.plan) },
                 { label: 'Start Date', value: new Date(selectedClient.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) },
                 { label: 'End Date', value: new Date(selectedClient.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) },
-                { label: 'Days Remaining', value: selectedClient.remainingDays === 0 ? 'Expired' : `${selectedClient.remainingDays} days`, color: selectedClient.remainingDays <= 14 ? '#fbbf24' : '#4ade80' },
+                { label: 'Days Remaining', value: selectedClient.remainingDays === 0 ? 'Expired' : `${selectedClient.remainingDays} days`, color: selectedClient.remainingDays <= 14 ? '#D4D4D8' : '#FFFFFF' },
                 { label: 'Current Weight', value: `${selectedClient.currentWeight} kg` },
                 { label: 'Goal Weight', value: `${selectedClient.goalWeight} kg` },
                 { label: 'Height', value: `${selectedClient.height} cm` },
@@ -425,12 +472,12 @@ export default function Clients() {
               return (
                 <div style={{
                   marginTop: '12px', padding: '10px', borderRadius: '10px',
-                  background: `${info.color}08`, border: `1px solid ${info.color}20`,
+                  background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.12)',
                 }}>
                   <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>BMI Score</div>
                   <div className="flex items-center justify-between">
-                    <span style={{ fontSize: '1.2rem', fontWeight: 900, color: info.color }}>{bmi}</span>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: info.color }}>{info.label}</span>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#FFFFFF' }}>{bmi}</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#D4D4D8' }}>{info.label}</span>
                   </div>
                 </div>
               )
@@ -440,10 +487,10 @@ export default function Clients() {
             <div style={{ marginTop: '12px' }}>
               <div className="flex items-center justify-between mb-1.5">
                 <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Attendance</span>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4ade80' }}>{selectedClient.attendance}%</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#FFFFFF' }}>{selectedClient.attendance}%</span>
               </div>
               <div className="progress-bar" style={{ height: '5px' }}>
-                <div className="progress-fill" style={{ width: `${selectedClient.attendance}%`, background: 'linear-gradient(90deg, #FACC15, #FDE047)' }} />
+                <div className="progress-fill" style={{ width: `${selectedClient.attendance}%`, background: '#FFFFFF' }} />
               </div>
             </div>
 
@@ -454,7 +501,7 @@ export default function Clients() {
               <button className="btn-secondary" style={{ flex: 1, justifyContent: 'center', padding: '8px', fontSize: '0.75rem' }} onClick={() => setShowMessageModal(true)}>
                 <MessageSquare size={12} /> Message
               </button>
-              <button className="btn-danger" style={{ padding: '8px' }} onClick={handleDelete} title="Delete Client">
+              <button className="btn-danger" style={{ padding: '8px' }} onClick={() => setPendingDelete(selectedClient)} title="Delete member" aria-label={`Delete ${selectedClient.name}`}>
                 <Trash2 size={13} />
               </button>
             </div>
@@ -472,7 +519,7 @@ export default function Clients() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
+            <div style={{ height: '2px', background: 'rgba(255, 255, 255, 0.3)', borderRadius: '2px', marginBottom: '20px' }} />
 
             <form onSubmit={handleAddSubmit} className="flex flex-col gap-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -571,7 +618,7 @@ export default function Clients() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
+            <div style={{ height: '2px', background: 'rgba(255, 255, 255, 0.3)', borderRadius: '2px', marginBottom: '20px' }} />
 
             <form onSubmit={handleEditSubmit} className="flex flex-col gap-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -670,7 +717,7 @@ export default function Clients() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
+            <div style={{ height: '2px', background: 'rgba(255, 255, 255, 0.3)', borderRadius: '2px', marginBottom: '20px' }} />
 
             <form onSubmit={handleSendMessage} className="flex flex-col gap-4">
               <div>
@@ -687,12 +734,25 @@ export default function Clients() {
               </div>
 
               <button className="btn-primary w-full justify-center" type="submit">
-                Send Message
+                Record note
               </button>
+              <p className="text-[0.68rem] text-center" style={{ color: 'var(--text-muted)' }}>
+                Notes are stored in the workspace notification log — this build has no per-member delivery channel.
+              </p>
             </form>
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(pendingDelete)}
+        title={`Delete ${pendingDelete?.name ?? ''}?`}
+        description="This permanently removes the member record, along with its plan dates and notes. Attendance rows already recorded are kept for reporting. This cannot be undone."
+        confirmLabel="Delete member"
+        destructive
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   )
 }

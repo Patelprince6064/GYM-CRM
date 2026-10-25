@@ -1,3 +1,13 @@
-// Shared presentational components (buttons, cards, badges, modals) live here.
-// Import via `@/components/ui/*`. Kept as a barrel so the folder is tracked.
-export {}
+export { Button, IconButton } from './Button'
+export { Avatar } from './Avatar'
+export { Card, CardHeader } from './Card'
+export { Badge, StatusBadge, type MembershipStatus, type Tone } from './Badge'
+export { Field, TextField, SelectField, TextAreaField, FormAlert } from './Field'
+export { Modal } from './Modal'
+export { ConfirmDialog } from './ConfirmDialog'
+export { EmptyState, UnavailableState } from './EmptyState'
+export { Skeleton, ChartSkeleton, CardSkeleton, SkeletonText, PageSkeleton } from './Skeleton'
+export { PageHeading } from './PageHeading'
+export { StatCard } from './StatCard'
+export { ChartCard } from './ChartCard'
+export { ToastProvider, useToast } from './Toast'

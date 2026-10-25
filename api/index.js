@@ -5,8 +5,9 @@
  * SHARED express app factory. All route logic lives in `server/src/routes/`.
  */
 import initSqlJs from 'sql.js';
-import { SCHEMA_SQL } from '../server/src/db/schema.js';
+import { SCHEMA_SQL, migrateDatabase } from '../server/src/db/schema.js';
 import { seedDatabase } from '../server/src/db/seed-data.js';
+import { ensureDemoUsers } from '../server/src/db/accounts.js';
 import { createApp } from '../server/src/app.js';
 
 let db = null;
@@ -19,12 +20,14 @@ const initDB = async () => {
   for (const sql of SCHEMA_SQL) {
     db.run(sql);
   }
+  migrateDatabase(db);
 
   const countResult = db.exec('SELECT COUNT(*) as count FROM clients');
   const count = countResult[0]?.values[0][0] || 0;
   if (count === 0) {
     seedDatabase(db);
   }
+  ensureDemoUsers(db);
   return db;
 };
 

@@ -5,10 +5,10 @@ import { useData } from '../../context/DataContext'
 import { workoutSchedule as initialWorkoutSchedule } from '../../data/seed'
 
 const intensityColor: Record<string, string> = {
-  'Very High': '#f43f5e',
-  'High': '#FACC15',
-  'Medium': '#f59e0b',
-  'Low': '#4ade80',
+  'Very High': '#FFFFFF',
+  'High': '#E4E4E7',
+  'Medium': '#D4D4D8',
+  'Low': '#A1A1AA',
 }
 
 interface WorkoutDay {
@@ -153,7 +153,7 @@ export default function WorkoutSchedules() {
             Workout Schedules
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Weekly training plan · <span style={{ color: '#4ade80', fontWeight: 700 }}>{schedules.filter(s => !s.isRest).length}</span> active days
+            Weekly training plan · <span style={{ color: '#FFFFFF', fontWeight: 700 }}>{schedules.filter(s => !s.isRest).length}</span> active days
           </p>
         </div>
         {user?.role === 'admin' && (
@@ -186,12 +186,12 @@ export default function WorkoutSchedules() {
                 style={{
                   overflow: 'hidden',
                   transition: 'all 0.3s ease',
-                  border: isToday ? '1px solid rgba(250, 204, 21,0.3)' : '1px solid rgba(255,255,255,0.06)',
-                  boxShadow: isToday ? '0 0 30px rgba(250, 204, 21,0.1)' : undefined,
+                  border: isToday ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255,255,255,0.06)',
+                  boxShadow: isToday ? '0 0 30px rgba(255, 255, 255, 0.1)' : undefined,
                 }}
               >
                 {/* Card Top Gradient Bar */}
-                <div style={{ height: '4px', background: item.isRest ? 'linear-gradient(90deg, #475569, #64748b)' : item.day === 'Monday' ? 'linear-gradient(90deg,#7c3aed,#6d28d9)' : item.day === 'Tuesday' ? 'linear-gradient(90deg,#2563eb,#0891b2)' : item.day === 'Wednesday' ? 'linear-gradient(90deg,#059669,#0d9488)' : item.day === 'Thursday' ? 'linear-gradient(90deg,#d97706,#ea580c)' : item.day === 'Friday' ? 'linear-gradient(90deg,#e11d48,#db2777)' : item.day === 'Saturday' ? 'linear-gradient(90deg,#9333ea,#7c3aed)' : 'linear-gradient(90deg,#475569,#64748b)' }} />
+                <div style={{ height: '3px', background: item.isRest ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.25)' }} />
 
                 <div style={{ padding: '20px' }}>
                   {/* Day Header */}
@@ -199,7 +199,7 @@ export default function WorkoutSchedules() {
                     <div className="flex items-center gap-3">
                       <div
                         className="flex items-center justify-center text-2xl"
-                        style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(250, 204, 21,0.08)', border: '1px solid rgba(250, 204, 21,0.15)' }}
+                        style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
                       >
                         {item.icon}
                       </div>
@@ -211,8 +211,8 @@ export default function WorkoutSchedules() {
                     {isToday && (
                       <span style={{
                         fontSize: '0.68rem', fontWeight: 700,
-                        background: 'rgba(250, 204, 21,0.12)', color: 'var(--accent-primary)',
-                        border: '1px solid rgba(250, 204, 21,0.25)',
+                        background: 'rgba(255, 255, 255, 0.12)', color: '#FFFFFF',
+                        border: '1px solid rgba(255, 255, 255, 0.25)',
                         padding: '3px 10px', borderRadius: '12px',
                         textTransform: 'uppercase', letterSpacing: '0.06em',
                       }}>TODAY</span>
@@ -289,9 +289,9 @@ export default function WorkoutSchedules() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Active Training Days', value: String(schedules.filter(s => !s.isRest).length), color: '#FACC15' },
-            { label: 'Total Weekly Duration', value: `${schedules.reduce((acc, s) => acc + parseInt(s.duration || '0'), 0)} min`, color: '#4ade80' },
-            { label: 'Avg Session Length', value: `${Math.round(schedules.reduce((acc, s) => acc + parseInt(s.duration || '0'), 0) / (schedules.filter(s => !s.isRest).length || 1))} min`, color: '#f59e0b' },
+            { label: 'Active Training Days', value: String(schedules.filter(s => !s.isRest).length), color: '#FFFFFF' },
+            { label: 'Total Weekly Duration', value: `${schedules.reduce((acc, s) => acc + parseInt(s.duration || '0'), 0)} min`, color: '#E4E4E7' },
+            { label: 'Avg Session Length', value: `${Math.round(schedules.reduce((acc, s) => acc + parseInt(s.duration || '0'), 0) / (schedules.filter(s => !s.isRest).length || 1))} min`, color: '#D4D4D8' },
             { label: 'Rest Days', value: String(schedules.filter(s => s.isRest).length), color: 'var(--text-muted)' },
           ].map((s, i) => (
             <div key={i} style={{
@@ -331,7 +331,7 @@ export default function WorkoutSchedules() {
               <div>
                 <div className="flex items-start justify-between mb-2">
                   <div style={{ fontSize: '1rem', fontWeight: 800, color: 'white' }}>{w.name}</div>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: '10px', background: 'rgba(250,204,21,0.1)', color: '#FACC15', border: '1px solid rgba(250,204,21,0.2)' }}>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.2)' }}>
                     {w.focus}
                   </span>
                 </div>
@@ -342,7 +342,7 @@ export default function WorkoutSchedules() {
                 <div className="flex flex-col gap-1 mb-4">
                   {w.exercises.map((ex, i) => (
                     <div key={i} className="flex items-center gap-2" style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                      <span style={{ color: '#FACC15', fontSize: '0.65rem' }}>•</span> {ex}
+                      <span style={{ color: '#FFFFFF', fontSize: '0.65rem' }}>•</span> {ex}
                     </div>
                   ))}
                 </div>
@@ -372,7 +372,7 @@ export default function WorkoutSchedules() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
+            <div style={{ height: '2px', background: 'rgba(255, 255, 255, 0.3)', borderRadius: '2px', marginBottom: '20px' }} />
 
             <form onSubmit={handleEditSubmit} className="flex flex-col gap-4">
               <div>
@@ -422,7 +422,7 @@ export default function WorkoutSchedules() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
+            <div style={{ height: '2px', background: 'rgba(255, 255, 255, 0.3)', borderRadius: '2px', marginBottom: '20px' }} />
 
             <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
               <div>
@@ -478,7 +478,7 @@ export default function WorkoutSchedules() {
                 <X size={16} />
               </button>
             </div>
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #FACC15, #FDE047)', borderRadius: '2px', marginBottom: '20px' }} />
+            <div style={{ height: '2px', background: 'rgba(255, 255, 255, 0.3)', borderRadius: '2px', marginBottom: '20px' }} />
 
             <form onSubmit={handleAssignSubmit} className="flex flex-col gap-4">
               <div>
@@ -502,9 +502,9 @@ export default function WorkoutSchedules() {
                     onClick={() => setAssignSource('schedule')}
                     style={{
                       flex: 1, padding: '8px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 700,
-                      background: assignSource === 'schedule' ? 'rgba(250,204,21,0.15)' : '#1A1A1A',
-                      color: assignSource === 'schedule' ? '#FACC15' : 'var(--text-muted)',
-                      border: assignSource === 'schedule' ? '1px solid rgba(250,204,21,0.3)' : '1px solid rgba(255,255,255,0.06)'
+                      background: assignSource === 'schedule' ? 'rgba(255,255,255,0.15)' : '#111113',
+                      color: assignSource === 'schedule' ? '#FFFFFF' : 'var(--text-muted)',
+                      border: assignSource === 'schedule' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(255,255,255,0.06)'
                     }}
                   >
                     Weekly Schedule Day
@@ -514,9 +514,9 @@ export default function WorkoutSchedules() {
                     onClick={() => setAssignSource('saved')}
                     style={{
                       flex: 1, padding: '8px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 700,
-                      background: assignSource === 'saved' ? 'rgba(250,204,21,0.15)' : '#1A1A1A',
-                      color: assignSource === 'saved' ? '#FACC15' : 'var(--text-muted)',
-                      border: assignSource === 'saved' ? '1px solid rgba(250,204,21,0.3)' : '1px solid rgba(255,255,255,0.06)'
+                      background: assignSource === 'saved' ? 'rgba(255,255,255,0.15)' : '#111113',
+                      color: assignSource === 'saved' ? '#FFFFFF' : 'var(--text-muted)',
+                      border: assignSource === 'saved' ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(255,255,255,0.06)'
                     }}
                   >
                     Custom Workout
