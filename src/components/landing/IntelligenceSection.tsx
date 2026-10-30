@@ -235,8 +235,8 @@ export function IntelligenceSection() {
 
             <ul className="flex flex-col gap-3">
               {data.signals.map((s, i) => {
-                const Icon = KIND_ICON[s.kind]
-                const style = SEVERITY_STYLE[s.severity]
+                const Icon = KIND_ICON[s.kind] ?? Info
+                const style = SEVERITY_STYLE[s.severity] ?? SEVERITY_STYLE.low
                 return (
                   <motion.li
                     key={s.id}

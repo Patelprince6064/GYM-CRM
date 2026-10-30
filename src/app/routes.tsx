@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useAuth } from '@/context/AuthContext'
 import { ProtectedRoute, RequireRole } from '@/components/guards/ProtectedRoute'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import Layout from '@/components/layout/Layout'
 import { ROUTES } from '@/constants'
 import Login from '@/pages/auth/Login'
@@ -61,22 +62,30 @@ function PageTransition({ children }: { children: ReactNode }) {
   )
 }
 
-const withLayout = (page: ReactNode) => (
+/**
+ * The boundary wraps the *page*, not the shell — so if a view throws, the
+ * operator still keeps the sidebar, top bar and every other route.
+ */
+const withLayout = (page: ReactNode, viewName: string) => (
   <ProtectedRoute>
     <Layout>
       <PageTransition>
-        <Suspense fallback={<PageSkeleton />}>{page}</Suspense>
+        <ErrorBoundary viewName={viewName}>
+          <Suspense fallback={<PageSkeleton />}>{page}</Suspense>
+        </ErrorBoundary>
       </PageTransition>
     </Layout>
   </ProtectedRoute>
 )
 
 /** Operator-only shell: same layout behind an administrator role gate. */
-const withAdminLayout = (page: ReactNode) => (
+const withAdminLayout = (page: ReactNode, viewName: string) => (
   <RequireRole role="admin">
     <Layout>
       <PageTransition>
-        <Suspense fallback={<PageSkeleton />}>{page}</Suspense>
+        <ErrorBoundary viewName={viewName}>
+          <Suspense fallback={<PageSkeleton />}>{page}</Suspense>
+        </ErrorBoundary>
       </PageTransition>
     </Layout>
   </RequireRole>
@@ -93,18 +102,18 @@ export function AppRoutes() {
           <Route path={ROUTES.login} element={<LoginRoute />} />
 
           {/* Admin */}
-          <Route path={ROUTES.dashboard} element={withAdminLayout(<Dashboard />)} />
-          <Route path={ROUTES.clients} element={withAdminLayout(<Clients />)} />
-          <Route path={ROUTES.memberships} element={withAdminLayout(<Memberships />)} />
-          <Route path={ROUTES.reports} element={withAdminLayout(<Reports />)} />
-          <Route path={ROUTES.workouts} element={withAdminLayout(<WorkoutSchedules />)} />
-          <Route path={ROUTES.dailyUpdates} element={withAdminLayout(<DailyUpdates />)} />
-          <Route path={ROUTES.weight} element={withAdminLayout(<WeightManagement />)} />
+          <Route path={ROUTES.dashboard} element={withAdminLayout(<Dashboard />, 'Overview')} />
+          <Route path={ROUTES.clients} element={withAdminLayout(<Clients />, 'Members')} />
+          <Route path={ROUTES.memberships} element={withAdminLayout(<Memberships />, 'Memberships')} />
+          <Route path={ROUTES.reports} element={withAdminLayout(<Reports />, 'Reports')} />
+          <Route path={ROUTES.workouts} element={withAdminLayout(<WorkoutSchedules />, 'Workout schedules')} />
+          <Route path={ROUTES.dailyUpdates} element={withAdminLayout(<DailyUpdates />, 'Daily logs')} />
+          <Route path={ROUTES.weight} element={withAdminLayout(<WeightManagement />, 'Weight tracking')} />
 
           {/* Member portal — open to either role so admins can review it */}
-          <Route path={ROUTES.member} element={withLayout(<MemberPortal />)} />
-          <Route path={ROUTES.memberDashboard} element={withLayout(<MemberDashboard />)} />
-          <Route path={ROUTES.memberActivity} element={withLayout(<MemberActivity />)} />
+          <Route path={ROUTES.member} element={withLayout(<MemberPortal />, 'Member portal')} />
+          <Route path={ROUTES.memberDashboard} element={withLayout(<MemberDashboard />, 'Member dashboard')} />
+          <Route path={ROUTES.memberActivity} element={withLayout(<MemberActivity />, 'Activity & attendance')} />
 
           <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
         </Routes>

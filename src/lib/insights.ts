@@ -362,7 +362,24 @@ export function gymPulse(
 /* Smart action centre                                                 */
 /* ------------------------------------------------------------------ */
 
-export type ActionKind = 'renewal' | 'inactive' | 'profile' | 'milestone' | 'attendance'
+export type ActionKind = 'renewal' | 'inactive' | 'profile' | 'milestone' | 'attendance' | 'decline'
+
+/**
+ * Every `SignalKind` must map to an `ActionKind`.
+ *
+ * This table is deliberately exhaustive rather than an inline `as ActionKind`
+ * cast: a cast compiles even when a new signal kind has no matching action
+ * kind, which is exactly how `decline` shipped without an icon and crashed
+ * the dashboard (`KIND_ICON[kind]` evaluated to `undefined`, so React threw
+ * error #130 and unmounted the tree). With `Record<SignalKind, ActionKind>`
+ * the compiler rejects any unmapped kind instead.
+ */
+const SIGNAL_TO_ACTION: Record<SignalKind, ActionKind> = {
+  expiry: 'renewal',
+  inactive: 'inactive',
+  decline: 'decline',
+  incomplete: 'profile',
+}
 
 export interface ActionItem {
   id: string
@@ -389,7 +406,7 @@ export function buildActionCenter(
     .filter((s) => !dismissed.includes(s.id))
     .map((s) => ({
       id: s.id,
-      kind: (s.kind === 'expiry' ? 'renewal' : s.kind) as ActionKind,
+      kind: SIGNAL_TO_ACTION[s.kind],
       priority: SEVERITY_PRIORITY[s.severity],
       title: `${s.clientName} — ${s.headline}`,
       description: s.reason,

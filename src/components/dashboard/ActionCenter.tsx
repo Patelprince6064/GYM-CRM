@@ -9,6 +9,7 @@ import {
   RotateCcw,
   Sparkles,
   UserRoundX,
+  Waves,
 } from 'lucide-react'
 import { useData } from '@/context/DataContext'
 import { Badge, Button, Card, CardHeader, EmptyState, IconButton } from '@/components/ui'
@@ -24,6 +25,7 @@ const KIND_ICON: Record<ActionKind, typeof Sparkles> = {
   profile: Sparkles,
   milestone: CircleCheckBig,
   attendance: ListTodo,
+  decline: Waves,
 }
 
 const PRIORITY: Record<1 | 2 | 3, { label: string; tone: 'danger' | 'warning' | 'neutral' }> = {
@@ -89,7 +91,7 @@ export function ActionCenter() {
         <ul className="flex flex-col gap-2.5">
           <AnimatePresence initial={false}>
             {open.map((item, i) => {
-              const Icon = KIND_ICON[item.kind]
+              const Icon = KIND_ICON[item.kind] ?? Sparkles
               const p = PRIORITY[item.priority]
               return (
                 <motion.li

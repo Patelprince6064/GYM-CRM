@@ -59,7 +59,7 @@ export function Milestones() {
       ) : (
         <ul className="flex flex-col gap-3">
           {top.map((m, i) => {
-            const Icon = ICON[m.kind]
+            const Icon = ICON[m.kind] ?? Trophy
             return (
               <motion.li
                 key={m.id}
