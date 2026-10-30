@@ -2,16 +2,247 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="GymCRM – Premium Fitness Management Platform for gyms and fitness professionals." />
     <title>GymCRM – Fitness Management Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script>
+      /*
+       * Boot guard.
+       *
+       * React mounts into #root. When the entry bundle never executes, the page
+       * is a silent black screen: no sidebar, no top bar, nothing to diagnose.
+       * That happens when the bundle is missing or refused — the SPA rewrite in
+       * vercel.json answers any unmatched path with index.html (200 +
+       * text/html), which the browser then rejects as a module.
+       *
+       * Resource errors do not bubble, and a module script can fail within
+       * milliseconds of being parsed — too fast for a polling loop to catch.
+       * So failure detection is a capture-phase listener installed here, before
+       * the entry tag even exists: it sees every script failure whenever it
+       * happens. A poll only supplies the deadlines around that signal.
+       *
+       * On failure it retries once against a cache-busted URL (a fresh HTML
+       * shell carrying current asset hashes), then explains what broke instead
+       * of showing nothing. `booted()` is checked first on every tick and
+       * teardown removes the fallback, so this can never cover an app that does
+       * start.
+       */
+      (function () {
+        var RETRY_KEY = 'gym_crm_boot_retries'
+        var GRACE_MS = 4000 // after a detected failure, time to act
+        var MOUNT_MS = 15000 // script loaded: how long React gets to mount
+        var PENDING_MS = 30000 // nothing observed: stop waiting
+
+        var started = Date.now()
+        var entryState = 'unknown' // 'unknown' | 'pending' | 'loaded' | 'failed'
+        var stateChangedAt = Date.now()
+        var lastError = null
+        var fallbackShown = false
+
+        function remember(msg) {
+          if (msg && !lastError) lastError = msg
+        }
+
+        // Capture phase: resource failures do not bubble, so this is the only
+        // reliable place to see a rejected <script> — and installing it before
+        // the tag is parsed means no failure can slip through the gap.
+        window.addEventListener(
+          'error',
+          function (e) {
+            var target = e.target
+            if (target && target.tagName && String(target.tagName).toUpperCase() === 'SCRIPT') {
+              // Only the app bundle counts: classic scripts are third-party.
+              if (target.type === 'module') {
+                setState('failed')
+                remember('Blocked or failed script: ' + (target.src || '(unknown source)'))
+                return
+              }
+            }
+            if (e.message) remember(e.message)
+          },
+          true,
+        )
+        window.addEventListener('unhandledrejection', function (e) {
+          var reason = e && e.reason
+          if (reason) remember(reason.message || String(reason))
+        })
+
+        function booted() {
+          var root = document.getElementById('root')
+          return !!root && root.childNodes.length > 0
+        }
+
+        function setState(next) {
+          // 'failed' is terminal: a late poll must not downgrade it, or a
+          // listener attached after the error would reset the deadline.
+          if (entryState === 'failed' || entryState === next) return
+          entryState = next
+          stateChangedAt = Date.now()
+        }
+
+        function retries() {
+          try {
+            return parseInt(window.sessionStorage.getItem(RETRY_KEY) || '0', 10) || 0
+          } catch (e) {
+            return 0
+          }
+        }
+
+        function bumpRetries() {
+          try {
+            window.sessionStorage.setItem(RETRY_KEY, String(retries() + 1))
+          } catch (e) {
+            /* storage blocked — the retry simply won't be remembered */
+          }
+        }
+
+        function clearRetries() {
+          try {
+            window.sessionStorage.removeItem(RETRY_KEY)
+          } catch (e) {
+            /* ignore */
+          }
+        }
+
+        function stripBootParam() {
+          if (!/[?&]boot=/.test(window.location.search)) return
+          var search = window.location.search
+            .replace(/[?&]boot=[^&]*/, '')
+            .replace(/^\?$/, '')
+            .replace(/^&/, '?')
+          try {
+            window.history.replaceState(null, '', window.location.pathname + search + window.location.hash)
+          } catch (e) {
+            /* ignore */
+          }
+        }
+
+        // Supplies the success signal: a load event on the entry tag. Failure
+        // already arrived through the capture listener, so this only ever moves
+        // the state 'unknown' -> 'pending' -> 'loaded'.
+        function watchEntry() {
+          if (entryState === 'failed') return
+          var scripts = document.querySelectorAll('script[type="module"][src]')
+          if (!scripts.length) return
+          var entry = scripts[scripts.length - 1]
+          if (entry.dataset.bootWatched === '1') return
+          entry.dataset.bootWatched = '1'
+          setState('pending')
+          entry.addEventListener('load', function () {
+            setState('loaded')
+          })
+        }
+
+        function removeFallback() {
+          var el = document.getElementById('boot-guard-fallback')
+          if (el && el.parentNode) el.parentNode.removeChild(el)
+          fallbackShown = false
+        }
+
+        function showFallback() {
+          if (fallbackShown || !document.body) return
+          fallbackShown = true
+          var el = document.createElement('div')
+          el.id = 'boot-guard-fallback'
+          el.setAttribute('role', 'alert')
+          el.setAttribute(
+            'style',
+            'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;' +
+              'padding:24px;background:#000000;color:#ffffff;font-family:Inter,system-ui,-apple-system,sans-serif;',
+          )
+          el.innerHTML =
+            '<div style="max-width:460px;width:100%;background:rgba(255,255,255,0.04);' +
+            'border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:28px">' +
+            '<div style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#a1a1aa">GymCRM</div>' +
+            '<h1 style="font-size:20px;font-weight:800;margin:10px 0 0;line-height:1.3">The app could not start</h1>' +
+            '<p style="font-size:13px;line-height:1.65;color:#d4d4d8;margin:10px 0 0">' +
+            'The dashboard never finished loading, so there is nothing to show yet. ' +
+            'This is usually a stale page or a blocked script rather than lost data &mdash; ' +
+            'your records are safe.</p>' +
+            '<p style="font-size:13px;line-height:1.65;color:#d4d4d8;margin:10px 0 0">' +
+            'Try a hard refresh (Ctrl+Shift+R / Cmd+Shift+R), or open the site in a private window.</p>' +
+            '<div id="boot-guard-detail" style="display:none;margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);' +
+            'border:1px solid rgba(255,255,255,0.08);border-radius:10px">' +
+            '<div style="font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#a1a1aa;margin-bottom:6px">Detail</div>' +
+            '<code id="boot-guard-error" style="font-size:12px;line-height:1.6;color:#d4d4d8;word-break:break-word;white-space:pre-wrap"></code>' +
+            '</div>' +
+            '<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">' +
+            '<button id="boot-guard-retry" type="button" style="background:#ffffff;color:#000000;border:0;border-radius:10px;' +
+            'padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Reload the app</button>' +
+            '<a href="/" style="display:inline-block;padding:10px 16px;font-size:13px;font-weight:600;border-radius:10px;' +
+            'border:1px solid rgba(255,255,255,0.16);color:#ffffff;text-decoration:none">Back to home</a>' +
+            '</div></div>'
+          document.body.appendChild(el)
+
+          var detail = document.getElementById('boot-guard-detail')
+          if (detail && lastError) {
+            detail.style.display = 'block'
+            document.getElementById('boot-guard-error').textContent = lastError
+          }
+
+          document.getElementById('boot-guard-retry').addEventListener('click', function () {
+            clearRetries()
+            window.location.reload()
+          })
+        }
+
+        function settle() {
+          window.clearInterval(timer)
+          clearRetries()
+          stripBootParam()
+          removeFallback()
+        }
+
+        function retryOnce() {
+          // The URL is the primary token, sessionStorage only the backup: when
+          // storage is blocked (private mode) bumping would silently fail and
+          // this would reload forever. The param is stripped once we settle.
+          if (/[?&]boot=/.test(window.location.search) || retries() >= 1) return false
+          bumpRetries()
+          // A distinct URL forces a fresh HTML fetch, so a cached shell that
+          // points at removed assets is replaced by the current one.
+          var join = window.location.search ? '&' : '?'
+          window.location.replace(
+            window.location.pathname + window.location.search + join + 'boot=' + Date.now() + window.location.hash,
+          )
+          return true
+        }
+
+        function failed() {
+          var held = Date.now() - stateChangedAt
+          if (entryState === 'failed') return held >= GRACE_MS
+          if (entryState === 'loaded') return held >= MOUNT_MS
+          return Date.now() - started >= PENDING_MS
+        }
+
+        var timer = window.setInterval(function () {
+          if (booted()) {
+            settle()
+            return
+          }
+          watchEntry()
+          if (!failed()) return
+          if (retryOnce()) return
+          showFallback()
+        }, 250)
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="max-width:460px;margin:15vh auto;padding:28px;background:#000;color:#fff;font-family:Inter,sans-serif;border:1px solid rgba(255,255,255,0.12);border-radius:16px">
+        <h1 style="font-size:20px;font-weight:800;margin:0">JavaScript is required</h1>
+        <p style="font-size:13px;line-height:1.65;color:#d4d4d8;margin-top:10px">
+          The GymCRM dashboard is a client-rendered application. Enable JavaScript for this site to
+          sign in and manage your members.
+        </p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
