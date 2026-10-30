@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import { ArrowDownRight, ArrowUpRight, Minus, type LucideIcon } from 'lucide-react'
 import { AnimatedCounter } from '@/components/motion'
 

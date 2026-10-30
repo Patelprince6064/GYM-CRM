@@ -1,7 +1,8 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import { ArrowRight, BarChart3, Users, Workflow } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/constants'
+import { Magnetic, SplitHeading } from '@/components/motion'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -41,9 +42,15 @@ export function HowItWorks() {
       <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 relative" style={{ maxWidth: 1440 }}>
         <div className="max-w-2xl mb-14">
           <div className="section-label">How it works</div>
-          <h2 className="display-lg text-white">
-            Three steps to a <span className="gradient-text">tighter operation</span>
-          </h2>
+          <SplitHeading
+            as="h2"
+            className="display-lg text-white"
+            delay={0.1}
+            lines={[
+              { text: 'Three steps to a' },
+              { text: 'tighter operation', gradient: true, sheen: true },
+            ]}
+          />
         </div>
 
         <div className="relative">
@@ -107,10 +114,12 @@ export function HowItWorks() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-12 flex flex-wrap items-center gap-3"
         >
-          <Link to={ROUTES.login} className="btn-primary">
-            Get Started
-            <ArrowRight size={16} aria-hidden />
-          </Link>
+          <Magnetic>
+            <Link to={ROUTES.login} className="btn-primary">
+              Get Started
+              <ArrowRight size={16} aria-hidden />
+            </Link>
+          </Magnetic>
           <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
             Sign in opens the workspace your team already uses.
           </span>

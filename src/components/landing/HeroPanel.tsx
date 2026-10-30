@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import { Area, AreaChart, ResponsiveContainer, YAxis } from 'recharts'
 import { ArrowUpRight, CalendarClock, CheckCircle2, Users } from 'lucide-react'
 import { initialClients, initialDailyUpdates } from '@/data/seed'
@@ -155,20 +155,28 @@ export function FloatingMetric({
       initial={reduce ? false : { opacity: 0, y: 16, scale: 0.94 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={`glass ${className}`}
-      style={{ padding: '11px 14px', minWidth: 148, ...style }}
+      className={className}
+      style={style}
     >
-      <div className="text-[0.58rem] uppercase tracking-[0.16em] font-bold" style={{ color: 'var(--text-muted)' }}>
-        {label}
-      </div>
-      <div className="flex items-baseline gap-2 mt-1">
-        <span className="text-lg font-extrabold text-white leading-none">{value}</span>
-        {delta && (
-          <span className="text-[0.66rem] font-bold" style={{ color: 'var(--accent-primary)' }}>
-            {delta}
-          </span>
-        )}
-      </div>
+      {/* Inner layer carries the idle float so it never fights the entrance. */}
+      <motion.div
+        className="glass"
+        style={{ padding: '11px 14px', minWidth: 148 }}
+        animate={reduce ? undefined : { y: [0, -7, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <div className="text-[0.58rem] uppercase tracking-[0.16em] font-bold" style={{ color: 'var(--text-muted)' }}>
+          {label}
+        </div>
+        <div className="flex items-baseline gap-2 mt-1">
+          <span className="text-lg font-extrabold text-white leading-none">{value}</span>
+          {delta && (
+            <span className="text-[0.66rem] font-bold" style={{ color: 'var(--accent-primary)' }}>
+              {delta}
+            </span>
+          )}
+        </div>
+      </motion.div>
     </motion.div>
   )
 }

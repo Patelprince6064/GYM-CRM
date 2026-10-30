@@ -1,4 +1,4 @@
-import { animate, useInView, useReducedMotion } from 'framer-motion'
+import { animate, useInView, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 
 interface AnimatedCounterProps {

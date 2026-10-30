@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { AlertTriangle, CheckCircle2, Info, X } from 'lucide-react'
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 

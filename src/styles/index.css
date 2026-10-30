@@ -838,6 +838,29 @@ textarea.input-glass { resize: vertical; min-height: 84px; }
   0%, 100% { transform: translateY(0); opacity: 0.4; }
   50% { transform: translateY(7px); opacity: 1; }
 }
+/* Specular sweep across gradient headlines — a moving bright band that
+   makes flat gradient text read as a lit metallic surface. */
+@keyframes sheen {
+  0% { background-position: 200% 50%; }
+  100% { background-position: -40% 50%; }
+}
+.sheen {
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.55) 38%,
+    #ffffff 48%,
+    #d4d4d8 52%,
+    rgba(255, 255, 255, 0.55) 62%,
+    rgba(255, 255, 255, 0.55) 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: sheen 5.5s linear infinite;
+}
 
 .animate-fadeInUp { animation: fadeInUp 0.5s var(--ease-out) both; }
 .animate-fadeIn { animation: fadeIn 0.4s ease both; }

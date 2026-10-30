@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import {
   Activity,
   ArrowRight,
@@ -22,6 +22,7 @@ import {
 } from '@/lib/insights'
 import { Avatar, Badge } from '@/components/ui'
 import { buildSampleLogs } from '@/lib/sampleAttendance'
+import { Magnetic, SplitHeading } from '@/components/motion'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -118,11 +119,15 @@ export function IntelligenceSection() {
             <BrainCircuit size={13} aria-hidden />
             Intelligence
           </div>
-          <h2 className="display-lg text-white">
-            MORE THAN MANAGEMENT.
-            <br />
-            <span className="gradient-text">REAL INTELLIGENCE.</span>
-          </h2>
+          <SplitHeading
+            as="h2"
+            className="display-lg text-white"
+            delay={0.1}
+            lines={[
+              { text: 'MORE THAN MANAGEMENT.' },
+              { text: 'REAL INTELLIGENCE.', gradient: true, sheen: true },
+            ]}
+          />
           <p className="lede mt-6">
             Four deterministic rules run against your own records and tell you exactly why each member was
             flagged. There is no model to trust on faith — read the rule, read the record, decide.
@@ -274,10 +279,12 @@ export function IntelligenceSection() {
                 <Activity size={13} color="#FFFFFF" aria-hidden />
                 {data.visitsThis} visits in 30 days · {data.visitsPrev} in the period before
               </div>
-              <Link to={ROUTES.login} className="btn-secondary btn-sm">
-                See it in the dashboard
-                <ArrowRight size={14} aria-hidden />
-              </Link>
+              <Magnetic strength={0.4}>
+                <Link to={ROUTES.login} className="btn-secondary btn-sm">
+                  See it in the dashboard
+                  <ArrowRight size={14} aria-hidden />
+                </Link>
+              </Magnetic>
             </div>
           </motion.div>
         </div>

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { ArrowRight, Menu, X } from 'lucide-react'
 import { BRAND, LANDING_SECTIONS, ROUTES } from '@/constants'
 import { Logo } from '@/components/brand/Logo'
+import { Magnetic } from '@/components/motion'
 
 const LINKS = [
   { id: LANDING_SECTIONS.platform, label: 'Platform' },
@@ -64,7 +65,10 @@ export function LandingNavbar() {
 
   return (
     <>
-      <header
+      <motion.header
+        initial={reduce ? false : { y: -28, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
           scrolled ? 'nav-scrolled' : 'bg-transparent border-b border-transparent'
         }`}
@@ -121,10 +125,12 @@ export function LandingNavbar() {
             >
               Sign In
             </Link>
-            <Link to={ROUTES.login} className="btn-primary btn-sm">
-              Get Started
-              <ArrowRight size={15} aria-hidden />
-            </Link>
+            <Magnetic strength={0.4}>
+              <Link to={ROUTES.login} className="btn-primary btn-sm">
+                Get Started
+                <ArrowRight size={15} aria-hidden />
+              </Link>
+            </Magnetic>
           </div>
 
           <button
@@ -136,7 +142,7 @@ export function LandingNavbar() {
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>
         </nav>
-      </header>
+      </motion.header>
 
       {/* Mobile sheet */}
       <AnimatePresence>

@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import {
   Activity,
@@ -28,6 +28,7 @@ import {
 import { Avatar, Badge } from '@/components/ui'
 import { ChartTooltip } from '@/components/charts/ChartTooltip'
 import { buildSampleLogs } from '@/lib/sampleAttendance'
+import { Magnetic, SplitHeading, TiltCard } from '@/components/motion'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -74,24 +75,25 @@ export function CapabilitiesStrip() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.5, delay: i * 0.06, ease: EASE }}
-              className="metric-card card-hover"
             >
-              <div
-                className="flex items-center justify-center mb-4"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 11,
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                }}
-              >
-                <c.icon size={16} color="#FFFFFF" aria-hidden />
-              </div>
-              <div className="text-[0.84rem] font-bold text-white">{c.title}</div>
-              <div className="text-[0.72rem] mt-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                {c.detail}
-              </div>
+              <TiltCard className="metric-card h-full" max={7}>
+                <div
+                  className="flex items-center justify-center mb-4"
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 11,
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                  }}
+                >
+                  <c.icon size={16} color="#FFFFFF" aria-hidden />
+                </div>
+                <div className="text-[0.84rem] font-bold text-white">{c.title}</div>
+                <div className="text-[0.72rem] mt-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                  {c.detail}
+                </div>
+              </TiltCard>
             </motion.li>
           ))}
         </ul>
@@ -217,9 +219,15 @@ export function PlatformPreview() {
       <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 relative" style={{ maxWidth: 1440 }}>
         <div className="max-w-3xl mb-12">
           <div className="section-label">Platform preview</div>
-          <h2 className="display-lg text-white">
-            One console for the <span className="gradient-text">whole floor</span>
-          </h2>
+          <SplitHeading
+            as="h2"
+            className="display-lg text-white"
+            delay={0.1}
+            lines={[
+              { text: 'One console for the' },
+              { text: 'whole floor', gradient: true, sheen: true },
+            ]}
+          />
           <p className="lede mt-5">
             The landing page and the running application are the same design system — this preview is built
             from the identical components, charts and insight rules you get once you sign in.
@@ -420,10 +428,12 @@ export function PlatformPreview() {
         </motion.div>
 
         <div className="flex flex-wrap items-center gap-4 mt-8">
-          <Link to={ROUTES.login} className="btn-primary">
-            Open the real dashboard
-            <ArrowRight size={16} aria-hidden />
-          </Link>
+          <Magnetic>
+            <Link to={ROUTES.login} className="btn-primary">
+              Open the real dashboard
+              <ArrowRight size={16} aria-hidden />
+            </Link>
+          </Magnetic>
           <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
             Every figure above is computed from the bundled sample dataset using the rules in{' '}
             <code style={{ color: 'var(--accent-secondary)' }}>src/lib/insights.ts</code>.
@@ -525,15 +535,16 @@ function FeatureRow({ feature, reversed }: { feature: Feature; reversed: boolean
 
   return (
     <div className="grid lg:grid-cols-2 gap-8 lg:gap-14 items-center">
-      {/* Media */}
-      <motion.div
-        initial={reduce ? false : { opacity: 0, clipPath: 'inset(0 0 100% 0)', scale: 1.05 }}
-        whileInView={{ opacity: 1, clipPath: 'inset(0 0 0% 0)', scale: 1 }}
-        viewport={{ once: true, amount: 0.25 }}
-        transition={{ duration: 0.85, ease: EASE }}
-        className={`relative overflow-hidden ${reversed ? 'lg:order-2' : ''}`}
-        style={{ borderRadius: 22, border: '1px solid var(--border-color)', aspectRatio: '16 / 11' }}
-      >
+      {/* Media — tilts toward the cursor on pointer devices */}
+      <TiltCard className={reversed ? 'lg:order-2' : ''} max={6} glare={false}>
+        <motion.div
+          initial={reduce ? false : { opacity: 0, clipPath: 'inset(0 0 100% 0)', scale: 1.05 }}
+          whileInView={{ opacity: 1, clipPath: 'inset(0 0 0% 0)', scale: 1 }}
+          viewport={{ once: true, amount: 0.25 }}
+          transition={{ duration: 0.85, ease: EASE }}
+          className="relative overflow-hidden"
+          style={{ borderRadius: 22, border: '1px solid var(--border-color)', aspectRatio: '16 / 11' }}
+        >
         <img
           src={feature.image}
           alt=""
@@ -577,7 +588,8 @@ function FeatureRow({ feature, reversed }: { feature: Feature; reversed: boolean
             </div>
           </div>
         </div>
-      </motion.div>
+        </motion.div>
+      </TiltCard>
 
       {/* Copy */}
       <motion.div
@@ -617,9 +629,15 @@ export function FeatureShowcase() {
       <div className="mx-auto w-full px-5 sm:px-8 lg:px-12" style={{ maxWidth: 1440 }}>
         <div className="max-w-3xl mb-14">
           <div className="section-label">Feature showcase</div>
-          <h2 className="display-lg text-white">
-            Built around the work you <span className="gradient-text">already do</span>
-          </h2>
+          <SplitHeading
+            as="h2"
+            className="display-lg text-white"
+            delay={0.1}
+            lines={[
+              { text: 'Built around the work' },
+              { text: 'you already do', gradient: true, sheen: true },
+            ]}
+          />
           <p className="lede mt-5">
             Six capabilities, each mapped to functionality that ships in this repository. Nothing here is a
             mock-up of something that isn't implemented.

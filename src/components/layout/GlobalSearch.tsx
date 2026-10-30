@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, FileBarChart, LayoutDashboard, Search, Users, X } from 'lucide-react'
 import { useData } from '@/context/DataContext'

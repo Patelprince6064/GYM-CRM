@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   motion,
   useMotionValue,
@@ -6,22 +6,26 @@ import {
   useScroll,
   useSpring,
   useTransform,
-} from 'framer-motion'
+} from 'motion/react'
 import { ArrowRight, ChevronDown, PlayCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { BRAND, LANDING_SECTIONS, ROUTES } from '@/constants'
 import { Container, FloatingMetric, HeroPanelWithData } from './HeroPanel'
+import { AuroraBackdrop, Magnetic, SplitHeading, AnimatedCounter } from '@/components/motion'
+import { initialClients } from '@/data/seed'
+import { attendanceSeries } from '@/lib/insights'
+import { buildSampleLogs } from '@/lib/sampleAttendance'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
 const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } },
 }
 
 const item = {
-  hidden: { opacity: 0, y: 26 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
 }
 
 /** Cinematic, near-full-screen hero. Parallax is desktop-only and capped. */
@@ -48,6 +52,18 @@ export function HeroSection() {
   const previewY = useTransform(springY, (v) => v * 16)
   const imageX = useTransform(springX, (v) => v * -14)
   const imageY = useTransform(springY, (v) => v * -10)
+
+  // Real figures for the counting stat row, from the bundled sample set.
+  const stats = useMemo(() => {
+    const now = new Date()
+    const logs = buildSampleLogs()
+    const week = attendanceSeries(logs, 7, now)
+    const visits = week.reduce((s, d) => s + d.visits, 0)
+    const checkedIn = new Set(
+      logs.filter((l) => l.date === now.toISOString().split('T')[0] && l.present).map((l) => l.clientId),
+    ).size
+    return { members: initialClients.length, visits, checkedIn }
+  }, [])
 
   useEffect(() => {
     const mq = window.matchMedia('(pointer: fine) and (min-width: 1024px)')
@@ -102,8 +118,9 @@ export function HeroSection() {
       <motion.div className="hero-scrim" style={{ opacity: scrimOpacity }} />
       <div className="absolute inset-0 grid-texture" aria-hidden />
       <div className="absolute inset-0 radial-lime" aria-hidden />
+      <AuroraBackdrop />
 
-      {/* Accent rule — a single restrained lime line */}
+      {/* Accent rule — a single restrained line that draws itself in */}
       <motion.div
         aria-hidden
         style={{
@@ -127,35 +144,56 @@ export function HeroSection() {
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center w-full">
             {/* ---- Copy column ---- */}
-            <motion.div variants={stagger} initial={reduce ? false : 'hidden'} animate="show">
-              <motion.div variants={item}>
-                <span className="chip" style={{ borderColor: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.07)' }}>
+            <div>
+              <motion.div variants={stagger} initial={reduce ? false : 'hidden'} animate="show">
+                <motion.div variants={item}>
                   <span
-                    className="animate-pulse-glow"
-                    style={{ width: 6, height: 6, borderRadius: 99, background: '#FFFFFF', display: 'inline-block' }}
-                    aria-hidden
-                  />
-                  <span style={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: '0.12em', fontSize: '0.66rem' }}>
-                    {BRAND.trustLine}
+                    className="chip"
+                    style={{ borderColor: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.07)' }}
+                  >
+                    <span
+                      className="animate-pulse-glow"
+                      style={{ width: 6, height: 6, borderRadius: 99, background: '#FFFFFF', display: 'inline-block' }}
+                      aria-hidden
+                    />
+                    <span style={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: '0.12em', fontSize: '0.66rem' }}>
+                      {BRAND.trustLine}
+                    </span>
                   </span>
-                </span>
+                </motion.div>
               </motion.div>
 
-              <motion.h1 className="display-xl text-white mt-7" variants={item}>
-                YOUR GYM.
-                <br />
-                <span className="gradient-text">YOUR EMPIRE.</span>
-              </motion.h1>
+              {/* Kinetic headline — words rise from behind a mask, the
+                  second line gets a specular sheen sweep. */}
+              <SplitHeading
+                as="h1"
+                className="display-xl text-white mt-7"
+                delay={0.35}
+                stagger={0.08}
+                lines={[{ text: 'YOUR GYM.' }, { text: 'YOUR EMPIRE.', gradient: true, sheen: true }]}
+              />
 
-              <motion.p className="lede mt-7 text-base sm:text-lg" variants={item}>
+              <motion.p
+                className="lede mt-7 text-base sm:text-lg"
+                initial={reduce ? false : { opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.7, ease: EASE }}
+              >
                 {BRAND.description}
               </motion.p>
 
-              <motion.div className="flex flex-wrap items-center gap-3 mt-9" variants={item}>
-                <Link to={ROUTES.login} className="btn-primary btn-lg">
-                  Explore the Platform
-                  <ArrowRight size={17} aria-hidden />
-                </Link>
+              <motion.div
+                className="flex flex-wrap items-center gap-3 mt-9"
+                initial={reduce ? false : { opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.82, ease: EASE }}
+              >
+                <Magnetic>
+                  <Link to={ROUTES.login} className="btn-primary btn-lg">
+                    Explore the Platform
+                    <ArrowRight size={17} aria-hidden />
+                  </Link>
+                </Magnetic>
                 <button
                   type="button"
                   className="btn-secondary btn-lg"
@@ -170,24 +208,30 @@ export function HeroSection() {
                 </button>
               </motion.div>
 
+              {/* Counting stat row — real figures from the sample set */}
               <motion.div
                 className="grid grid-cols-3 gap-4 sm:gap-6 mt-10 pt-7 border-t border-white/10"
-                variants={item}
+                initial={reduce ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 1 }}
               >
                 {[
-                  ['Members', 'Profiles, plans & progress'],
-                  ['Attendance', 'Real check-in records'],
-                  ['Insights', 'Rules you can read'],
-                ].map(([title, sub]) => (
-                  <div key={title} className="min-w-0">
-                    <div className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-white">{title}</div>
-                    <div className="text-[0.72rem] mt-1 text-zinc-400">
-                      {sub}
+                  { label: 'Members', value: stats.members, suffix: '', sub: 'Profiles, plans & progress' },
+                  { label: 'Visits / week', value: stats.visits, suffix: '', sub: 'Real check-in records' },
+                  { label: 'Checked in', value: stats.checkedIn, suffix: '', sub: 'On the floor right now' },
+                ].map((s) => (
+                  <div key={s.label} className="min-w-0">
+                    <div className="text-2xl sm:text-3xl font-extrabold text-white leading-none">
+                      <AnimatedCounter value={s.value} suffix={s.suffix} />
                     </div>
+                    <div className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-white/90 mt-2">
+                      {s.label}
+                    </div>
+                    <div className="text-[0.7rem] mt-1 text-zinc-400">{s.sub}</div>
                   </div>
                 ))}
               </motion.div>
-            </motion.div>
+            </div>
 
             {/* ---- Preview column ---- */}
             <div className="relative">

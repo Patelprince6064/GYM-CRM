@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { Bell, BellOff, Check, CheckCheck, Info, TriangleAlert } from 'lucide-react'
 import { useData } from '@/context/DataContext'
 import { useAuth } from '@/context/AuthContext'

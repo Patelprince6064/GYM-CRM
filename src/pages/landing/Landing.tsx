@@ -1,11 +1,13 @@
 import { LandingNavbar } from '@/components/landing/LandingNavbar'
 import { HeroSection } from '@/components/landing/HeroSection'
+import { StatsBand } from '@/components/landing/StatsBand'
 import { CapabilitiesStrip, FeatureShowcase, PlatformPreview } from '@/components/landing/PlatformPreview'
 import { IntelligenceSection } from '@/components/landing/IntelligenceSection'
 import { MembershipSection } from '@/components/landing/MembershipSection'
 import { HowItWorks } from '@/components/landing/HowItWorks'
 import { FinalCta } from '@/components/landing/FinalCta'
 import { LandingFooter } from '@/components/landing/LandingFooter'
+import { EntranceCurtain, ScrollProgress } from '@/components/motion'
 
 /** Public marketing surface — no data is fetched from the authenticated API. */
 export default function Landing() {
@@ -30,10 +32,14 @@ export default function Landing() {
         Skip to content
       </a>
 
+      <ScrollProgress />
+      <EntranceCurtain />
+
       <LandingNavbar />
 
       <main id="main-content">
         <HeroSection />
+        <StatsBand />
         <CapabilitiesStrip />
         <PlatformPreview />
         <FeatureShowcase />

@@ -1,7 +1,8 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import { ArrowRight, BookOpen, Mail, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { BRAND, LANDING_SECTIONS, ROUTES } from '@/constants'
+import { Magnetic, SplitHeading } from '@/components/motion'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -42,21 +43,29 @@ export function FinalCta() {
             transition={{ duration: 0.75, ease: EASE }}
           >
             <div className="section-label">Get started</div>
-            <h2 className="display-xl text-white">
-              BUILD A
-              <br />
-              <span className="gradient-text">STRONGER BUSINESS.</span>
-            </h2>
+            <SplitHeading
+              as="h2"
+              className="display-xl text-white"
+              delay={0.15}
+              stagger={0.07}
+              lines={[
+                { text: 'BUILD A' },
+                { text: 'STRONGER', gradient: true },
+                { text: 'BUSINESS.', gradient: true, sheen: true },
+              ]}
+            />
             <p className="lede mt-7 text-base sm:text-lg">
               Bring members, attendance, renewals and progress into one console your team will actually open
               every morning — and keep the decisions grounded in records you can check.
             </p>
 
             <div className="flex flex-wrap items-center gap-3 mt-9">
-              <Link to={ROUTES.login} className="btn-primary btn-lg">
-                Get Started
-                <ArrowRight size={17} aria-hidden />
-              </Link>
+              <Magnetic>
+                <Link to={ROUTES.login} className="btn-primary btn-lg">
+                  Get Started
+                  <ArrowRight size={17} aria-hidden />
+                </Link>
+              </Magnetic>
               <button
                 type="button"
                 className="btn-secondary btn-lg"

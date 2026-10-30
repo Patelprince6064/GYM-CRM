@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import { Award, CalendarCheck, Footprints, Trophy } from 'lucide-react'
 import { useData } from '@/context/DataContext'
 import { CardHeader, EmptyState } from '@/components/ui'

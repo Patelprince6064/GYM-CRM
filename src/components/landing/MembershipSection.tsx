@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import { ArrowRight, CalendarRange, CreditCard, RefreshCcw, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/constants'
 import { initialClients } from '@/data/seed'
 import { daysUntil, formatFullDate, membershipPhase, planDistribution, DEFAULT_RULES } from '@/lib/insights'
 import { Avatar, Badge } from '@/components/ui'
+import { SplitHeading } from '@/components/motion'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -68,9 +69,15 @@ export function MembershipSection() {
         <div className="grid lg:grid-cols-[1fr_1fr] gap-12 lg:gap-16 items-start">
           <div>
             <div className="section-label">Membership</div>
-            <h2 className="display-lg text-white">
-              Membership, <span className="gradient-text">handled.</span>
-            </h2>
+            <SplitHeading
+              as="h2"
+              className="display-lg text-white"
+              delay={0.1}
+              lines={[
+                { text: 'Membership,' },
+                { text: 'handled.', gradient: true, sheen: true },
+              ]}
+            />
             <p className="lede mt-6">
               Three plans, one lifecycle. Dates drive status, status drives the work your team does next —
               and nothing is silently recomputed behind your back.

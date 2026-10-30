@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, type ReactNode } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useAuth } from '@/context/AuthContext'
 import { ProtectedRoute, RequireRole } from '@/components/guards/ProtectedRoute'
 import Layout from '@/components/layout/Layout'
